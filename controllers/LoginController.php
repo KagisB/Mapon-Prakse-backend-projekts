@@ -7,12 +7,25 @@
 //3.1.3)Ja nesakrīt, atmet atpakaļ
 //3.2)Ja neatrod lietotāju, atmet atpakaļ
 
+
+//Varbūt izmantot kādu gatavu bibliotēku šim
 //!!!Pārbaudīt, vai ievadīti ir vārdi, nevis kaut kas cits
 $name=$_POST["name"];
 $password=$_POST["password"];
+echo $name;
+$test="asd";
 //Kā pārbaudīt, vai name un password ir normāli/nav sql injections?
-if(strpos($name, " ")){
-    //atgriež uz login lapu ar kļūdu "Nepareizi ievadīts vārds"
+if(str_contains($name,"asd")){///izdomāt pareizāk
+    //atgriež uz login lapu ar kļūdu "Nepareizi ievadīts vārds"header("Location:login.php");
+    //    exit;
+    ?>
+    <form id="login1" action="../views/login.php" method="post">
+        <input type="hidden" name="errorCode" value="WUsername">
+    </form>
+    <script type="text/javascript">
+        document.getElementById('login1').submit();
+    </script>
+<?php
 }
 else{
     //iegūst sarakstu ar lietotājiem no datubāzes
@@ -35,9 +48,17 @@ else{
                 $hash=password_hash($password,PASSWORD_DEFAULT);
                 if(password_verify($row["password"],$hash)){
                     //atgriež uz home page ar karti
+                    header("location:mapRoutes.php");
+                    exit;
                 }
                 else{
                     //pārtrauc ciklu un atgriež uz login screen ar kļūdu "Nepareiza parole"
+                    header("location:login.php");
+                    exit;?>
+                    <form action="views/login.php" method="post">
+                        <input type="hidden" name="errorCode" value="WPassword">
+                    </form>
+                    <?php
                 }
             }
         }
