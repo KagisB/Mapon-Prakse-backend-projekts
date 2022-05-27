@@ -28,6 +28,7 @@ if(str_contains($name,"asd")){///izdomāt pareizāk
 <?php
 }
 else{
+    echo "Meklē datubāzē lietotāju";
     //iegūst sarakstu ar lietotājiem no datubāzes
     $servername = "127.0.0.1";//??
     $username = "admin";
@@ -37,28 +38,44 @@ else{
     $conn = new mysqli($servername,$username,$password,$dbname,$port);
     if($conn->connect_error){
         die("Connection failed: " . $conn->connect_error);
+        //te jāpievieno reroute uz login page, ka database ir unavailable/login ir unavailable pašlaik
     }
+    echo " Savienojums ir izveidots";
     //Atrod no datubāzes lietotāju ar tādu pašu vārdu
     $sql = $conn->prepare('SELECT * FROM Users WHERE name = ?');//atgriezt tikai lietotāju, kur sakrīt ar username
     $sql->bind_param('s', $name);
     $sql->execute();
     $result = $sql->get_result();
     if($result->num_rows > 0){
+        echo "Ir vairāk par 0 rezultātiem datubāzē";
         while($row = $result->fetch_assoc()){///Kamēr ir rezultātu rindas(vai vajag, jo vārdam tikai vienam vajadzētu būt
+            echo "Ir izvēlēta rinda";
             if($row["name"]==$name){
+                echo "Atrod datubāzē vārdu";
+                //Nestrādā salīdzināšana
                 $hash=password_hash($password,PASSWORD_DEFAULT);
                 if(password_verify($row["password"],$hash)){
+                    echo "Parole atrasta/sakrīt";
                     //atgriež uz home page ar karti
-                    header("location:mapRoutes.php");
+                    header("location:mapRoutes.php", true);
                     exit;
                 }
-                else{
+                else{///Te ir jāpārveido, lai turpina meklēt, ja gadījumā ir vairāki vienādi usernames
                     //pārtrauc ciklu un atgriež uz login screen ar kļūdu "Nepareiza parole"
-                    header("location:login.php");
-                    exit;?>
-                    <form action="views/login.php" method="post">
+                    //header("location:login.php");
+                    //exit;
+                    echo "Parole nesakrīt";
+                    //$hash=password_hash($password,PASSWORD_BCRYPT);
+                    //echo nl2br($hash."\n".$row["password"]."\n");
+                    ?>
+                    <form id="login2" action="../views/login.php" method="post">
                         <input type="hidden" name="errorCode" value="WPassword">
                     </form>
+                    <!---
+                    <script type="text/javascript">
+                        document.getElementById('login2').submit();
+                    </script>
+                    --->
                     <?php
                 }
             }
