@@ -32,8 +32,10 @@ function infoRoute(): void
     $object = $route->getRoutes();
     $unit = $object->data->units[0];
     //echo $object->data->units[1]->unit_id;
-    /*$routeStops = $unit->routes;
-    foreach ($routeStops as $routeStop) {
+    $routeStops = $unit->routes;
+    $jobject = json_encode($routeStops);
+    echo $jobject;
+    /*foreach ($routeStops as $routeStop) {
         $lat=$routeStop->start->lat;
         $lng=$routeStop->start->lng;
         $stops[$lat]=$lng;
@@ -47,9 +49,9 @@ function infoRoute(): void
     //var_dump($object);
 }
 
-//$action = $_GET["routeAction"];
+$action = $_GET["routeAction"];
 //$action = "infoAllRoutes";
-$action="infoRoute";
+//$action="infoRoute";
 //$action="infoManyCarssss";
 switch ($action) {
     case "infoRoute":
