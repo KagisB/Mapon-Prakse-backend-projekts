@@ -22,6 +22,8 @@
 <input type="button" id="press_me">
 <label for="reset">Reset</label>
 <input type="button" id="reset">
+<label for="filter">Filter data</label>
+<input type="button" id="filter">
 <!---
 Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, bet varbūt arī likt lietotājam to nospiest
 -->
@@ -33,30 +35,9 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
     let poly;
     document.getElementById("press_me").addEventListener("click",initMaps,false);
     document.getElementById("reset").addEventListener("click",initMap,false);
-    /*document.addEventListener('readystatechange', event => {
-        // When window loaded ( external resources are loaded too- `css`,`src`, etc...)
-        if (event.target.readyState === "complete") {
-            let xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function(){
-                let object = JSON.parse(xmlhttp.responseText);
-                let position ={ lat: object[0].start.lat, lng: object[0].start.lng};
-                map = new google.maps.Map(document.getElementById("map"), {
-                    zoom: 4,
-                    center: position,
-                });
-                object.forEach((route)=>{
-                    let positionAdditional = { lat: object.start.lat, lng: object.start.lng};
-                    let marker = new google.maps.Marker({
-                        position: positionAdditional,
-                        map: map,
-                    }));
-                }
-            }
-            xmlhttp.open("GET", "../controllers/RouteController.php?routeAction=infoRoute", true);
-            xmlhttp.send();
-        }
-    });*/
-
+    //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
+    // un route.php. Pagaidām temp alert, lai pārbaudītu, vai strādā šis listener.
+    document.getElementById("filter").addEventListener("click",function (){alert("Filter");},false);
     function initMaps(){
                 /*
                 Kad saņem kaut ko no servera-
@@ -69,8 +50,16 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
                     //alert("Tiek reqest funkcijā");
                     if (this.readyState == 4 && this.status == 200) {
                         //alert("Tiek reqest funkcijā iekšā");
+                        //console.log(xmlhttp.responseText);
+                        //console.log(JSON.parse(xmlhttp.responseText));
                         let object = JSON.parse(xmlhttp.responseText);
+                        //let object=xmlhttp.responseText;
+                        //console.log(object.length);
+                        //let route=JSON.parse(object);
+                        //console.log();
+                        //console.log(object);
                         //let object = xmlhttp.responseText;
+                        //alert(object);
                         let position = {lat: object[0].start.lat, lng: object[0].start.lng};
                         map = new google.maps.Map(document.getElementById("map"), {
                             zoom: 8,
@@ -80,14 +69,50 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
                             position: position,
                             map: map,
                         });
+                        //);
                         //Šis pagaidām nestrādā, jāizdomā, kā citādāk iet cauri atsūtītajam objektam
-                        /*object.forEach((route)=>{
-                            let positionAdditional = { lat: object.start.lat, lng: object.start.lng};
-                            let marker = new google.maps.Marker({
+                        //console.log(object[0]);
+                        //console.log(object[1]);
+                        object.forEach((route)=>{
+                            let stops = route;
+                            //console.log(stops);
+                            //console.log(stops.start);
+                            //console.log(stops.start.lat);
+                            //console.log(stops.end);
+                            let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
+                            marker = new google.maps.Marker({
                                 position: positionAdditional,
                                 map: map,
                             });
-                        });*/
+                            //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
+                            //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
+                            if(stops.hasOwnProperty('end')){
+                                //console.log("ir end");
+                                positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
+                                marker = new google.maps.Marker({
+                                    position: positionAdditional,
+                                    map: map,
+                                });
+                                stops
+                            }
+                            //console.log(stops.type);
+                            //Nevaru pārbaudīt pašlaik, jo ir problēmas ar random encoded polyline, kura met
+                            //unrecognizable simbolus, kas parādās tikai parsējot cauri ar json.parse funkciju,
+                            //citādi nerādās šie simboli, bet tādēļ uzreiz visa funkcija nestrādā
+                            //Bet, teorētiski, ja route tips ir route, nevis stop, tad vajadzētu decodot doto polyline path
+                            // un tālāk apstrādāt to.
+                            if(stops.type=="route"){
+                                let path = google.maps.geometry.encoding.decodePath(stops.polyline);
+                                console.log(path);
+                                let drivingPath = new google.maps.Polyline({
+                                    path: path,
+                                    geodesic:true,
+                                    strokeColor: "#4FDA12",
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 2,
+                                });
+                            }
+                        });
                     }
                 }
         xmlhttp.open("GET", "../controllers/RouteController.php?routeAction=infoRoute", true);
@@ -112,5 +137,5 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
     }
     window.initMap = initMap;
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w&callback=initMap"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w&libraries=geometry&callback=initMap"></script>
 </html>

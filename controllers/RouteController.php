@@ -50,6 +50,8 @@ function infoRoute(): void
 }
 
 $action = $_GET["routeAction"];
+//echo $_GET["dateFrom"];
+//Nosūtīt no mapRoutes.php datus: datumu no/līdz, izvēlētās mašīnas, un tad šos datus nosūtīt uz Route.php
 //$action = "infoAllRoutes";
 //$action="infoRoute";
 //$action="infoManyCarssss";
