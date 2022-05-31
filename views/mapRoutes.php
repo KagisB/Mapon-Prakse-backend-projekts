@@ -14,7 +14,7 @@
     <label for="dateFrom">Choose start date</label>
     <input type="datetime-local" id="dateFrom" name="dateFrom">
     <label for="dateTill">Choose end date</label>
-    <input type="datetime-local" id="dateTill" name="dateTill" max="">
+    <input type="datetime-local" id="dateTill" name="dateTill" min="" max="">
 </form>
 <label for="press_me">Press me</label>
 <input type="button" id="press_me">
@@ -38,6 +38,7 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         pageLoad();
     };
     document.getElementById("press_me").addEventListener("click",initMaps,false);
+    document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
     document.getElementById("reset").addEventListener("click",initMap,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php. Pagaidām temp alert, lai pārbaudītu, vai strādā šis listener.
@@ -68,6 +69,42 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         xmlhttp.open("GET", "../controllers/CarController.php?carAction=carList", true);
         xmlhttp.send();
         let currentDate = new Date() ;
+        let today = returnDateString(currentDate);
+        console.log(today);
+        //document.getElementById("dateTill").setAttribute("max",today);
+        document.getElementById("dateTill").max=today;
+    }
+    function changeMaxMinDate(){
+        /*
+        Paņem min date, pieliek mēnesi klāt, ja tas ir senāk par šodienu, noliek max uz
+        to datumu. Arī pie reizes uzliek min vērtību, kas ir vienāda ar from datumu.
+         */
+        console.log("Ieiet laika mainīšanas funkcijā");
+        let minDate = new Date(document.getElementById("dateFrom").value);
+        let today = returnDateString(minDate);
+        //console.log(today);
+        document.getElementById("dateTill").min=today;
+        let newDate = minDate;
+        newDate.setMonth(newDate.getMonth()+1);
+        //let newDate = new Date(minDate.setMonth(minDate.getMonth()+1));
+        let currentDate = new Date();
+        today = returnDateString(minDate);
+        //console.log(today);
+        if(newDate<currentDate){
+            today=returnDateString(newDate);
+            //console.log(today);
+            document.getElementById("dateTill").max=today;
+        }
+        else{
+            today=returnDateString(currentDate);
+            //console.log(today);
+            document.getElementById("dateTill").max=today;
+        }
+        //console.log(document.getElementById("dateTill").min);
+        //console.log(document.getElementById("dateTill").max);
+    }
+    //Funkcija atgriež string no iedotā datuma(vajadzēja priekš dažām pārbaudēm, uzrakstīju kā atseivšķu funkciju)
+    function returnDateString(currentDate){
         let d=currentDate.getDate();
         let m=currentDate.getMonth()+1;
         let y=currentDate.getFullYear();
@@ -89,11 +126,9 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         if(sec<10){
             sec = '0'+sec;
         }
-        console.log(y+" "+m+" "+d+" "+h+" "+min);
+        //console.log(y+" "+m+" "+d+" "+h+" "+min);
         let today=y+'-'+m+'-'+d+'T'+h+':'+min+':'+sec;
-        console.log(today);
-        //document.getElementById("dateTill").setAttribute("max",today);
-        document.getElementById("dateTill").max=today;
+        return today;
     }
     //Funkcija, lai atlasītu select vērtības no saraksta, ja gadījumā ir vairākas vērtības
     /*function getSelectValues(select) {
@@ -124,6 +159,21 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         }
         else{
             //console.log(document.getElementById('dateTill').value);
+            let compareDate = new Date(from);
+            let newDate = new Date(compareDate.setMonth(compareDate.getMonth()+1));
+            //console.log(newDate);
+            let currentDate=new Date();
+            if(newDate<currentDate){
+                let today = returnDateString(newDate);
+                document.getElementById("dateTill").max=today;
+                document.getElementById("dateTill").min=from;
+            }
+            else{
+                let currentDate = new Date() ;
+                let today = returnDateString(currentDate);
+                document.getElementById("dateTill").max=today;
+                document.getElementById("dateTill").min=from;
+            }
             till = document.getElementById('dateTill').value;
         }
         let selectedCars = document.getElementById('cars');
@@ -152,10 +202,6 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
                     position: position,
                     map: map,
                 });
-                //);
-                //Šis pagaidām nestrādā, jāizdomā, kā citādāk iet cauri atsūtītajam objektam
-                //console.log(object[0]);
-                //console.log(object[1]);
                 object.forEach((route)=>{
                     let stops = route;
                     let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
