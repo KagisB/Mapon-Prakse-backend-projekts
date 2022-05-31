@@ -18,10 +18,7 @@ class Car{
         //$object = json_decode($jobject,true);
         return $object;
     }
-    public function infoOnCar(): void{
-
-    }
 }
 $car = new Car(1);
 $object=$car->getCar();
-var_dump($object);
+//var_dump($object);

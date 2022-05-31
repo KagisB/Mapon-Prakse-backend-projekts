@@ -4,8 +4,8 @@
 //  Mašīnai parādīt info, šis varbūt iet RouteController
 //Vai vajag šo failu? Ja lapā requestos kaut ko, nevajadzētu refreshot page, un tādā gadījumā jādara viss tajā failā
 //uz vietas.
+include "../models/Car.php";
 function infoCar(): void{
-    include "../models/Car.php";
     $car = new Car();
     $object = $car->getCar();
     $cars=$object->data->units;
@@ -15,8 +15,15 @@ function infoCar(): void{
     }
     //var_dump($object);
 }
-//$action = $_POST["carAction"];
-$action="infoCar";
+function allCars(): void{
+    $car = new Car();
+    $object = $car->getCar();
+    $cars=$object->data->units;
+    $jcars = json_encode($cars);
+    echo $jcars;
+}
+$action = $_GET["carAction"];
+//$action="infoCar";
 //$action="infoManyCars";
 //$action="infoManyCarssss";
 switch($action){
@@ -26,8 +33,8 @@ switch($action){
     case "infoManyCars":
         echo "lol";
         break;
-    case "AllCars":
-        echo "please";
+    case "carList":
+        allCars();
         break;
 }
 
