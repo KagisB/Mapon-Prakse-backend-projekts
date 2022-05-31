@@ -4,7 +4,6 @@
 <h3>Map</h3>
 <?php
 //google maps api key :AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w
-//Varbūt te paņemt json failu, un tad viņu pārmest šajā lapā jau?
 ?>
 <form id="routeSelect" action="../controllers/RouteController.php" method="post">
     <label for="cars">Select a car</label>
@@ -14,7 +13,7 @@
     <label for="dateFrom">Choose start date</label>
     <input type="datetime-local" id="dateFrom" name="dateFrom">
     <label for="dateTill">Choose end date</label>
-    <input type="datetime-local" id="dateTill" name="dateTill" max="">
+    <input type="datetime-local" id="dateTill" name="dateTill" min="" max="">
 </form>
 <label for="press_me">Press me</label>
 <input type="button" id="press_me">
@@ -24,11 +23,8 @@
 <input type="button" id="filter">
 <label for="test">Test polyline</label>
 <input type="button" id="test">
+<!---- šeit ir atsevišķš div, kurā glabāsies info par maršrutiem. Varbūt labāk gan tos attēlot kā info windows----->
 <div id="Route_info"></div>
-<!---
-Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, bet varbūt arī likt lietotājam to nospiest
--->
-
 
 <div id="map" style="width:100%;height:750px;"></div>
 <script>
@@ -38,11 +34,13 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         pageLoad();
     };
     document.getElementById("press_me").addEventListener("click",initMaps,false);
+    document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
     document.getElementById("reset").addEventListener("click",initMap,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php. Pagaidām temp alert, lai pārbaudītu, vai strādā šis listener.
     document.getElementById("filter").addEventListener("click",filter,false);
     //document.getElementById("test").addEventListener("click",getSelectValues(),false);
+
     //Šī funkcija uzliek mašīnu sarakstu pie izvēles opcijām, kā arī uzliek pašreizējo laiku kā max value
     //dateTill izvēlei
     function pageLoad(){
@@ -68,6 +66,43 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         xmlhttp.open("GET", "../controllers/CarController.php?carAction=carList", true);
         xmlhttp.send();
         let currentDate = new Date() ;
+        let today = returnDateString(currentDate);
+        //console.log(today);
+        //document.getElementById("dateTill").setAttribute("max",today);
+        document.getElementById("dateTill").max=today;
+    }
+    function changeMaxMinDate(){
+        /*
+        Paņem min date, pieliek mēnesi klāt, ja tas ir senāk par šodienu, noliek max uz
+        to datumu. Arī pie reizes uzliek min vērtību, kas ir vienāda ar from datumu.
+        Laikus saliek pareizi min/max, bet lietotājs var uzlikt citu stundu/minūti, kas salauž funkciju
+         */
+        //console.log("Ieiet laika mainīšanas funkcijā");
+        let minDate = new Date(document.getElementById("dateFrom").value);
+        let today = returnDateString(minDate);
+        //console.log(today);
+        document.getElementById("dateTill").min=today;
+        let newDate = minDate;
+        newDate.setMonth(newDate.getMonth()+1);
+        //let newDate = new Date(minDate.setMonth(minDate.getMonth()+1));
+        let currentDate = new Date();
+        //today = returnDateString(minDate);
+        //console.log(today);
+        if(newDate<currentDate){
+            today=returnDateString(newDate);
+            //console.log(today);
+            document.getElementById("dateTill").max=today;
+        }
+        else{
+            today=returnDateString(currentDate);
+            //console.log(today);
+            document.getElementById("dateTill").max=today;
+        }
+        //console.log(document.getElementById("dateTill").min);
+        //console.log(document.getElementById("dateTill").max);
+    }
+    //Funkcija atgriež string no iedotā datuma(vajadzēja priekš dažām pārbaudēm, uzrakstīju kā atseivšķu funkciju)
+    function returnDateString(currentDate){
         let d=currentDate.getDate();
         let m=currentDate.getMonth()+1;
         let y=currentDate.getFullYear();
@@ -89,27 +124,21 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         if(sec<10){
             sec = '0'+sec;
         }
-        console.log(y+" "+m+" "+d+" "+h+" "+min);
+        //console.log(y+" "+m+" "+d+" "+h+" "+min);
         let today=y+'-'+m+'-'+d+'T'+h+':'+min+':'+sec;
-        console.log(today);
-        //document.getElementById("dateTill").setAttribute("max",today);
-        document.getElementById("dateTill").max=today;
+        return today;
     }
     //Funkcija, lai atlasītu select vērtības no saraksta, ja gadījumā ir vairākas vērtības
-    /*function getSelectValues(select) {
-        let result = [];
-        let options = select && select.options;
-        let opt;
-
-        for (let i=0, iLen=options.length; i<iLen; i++) {
-            opt = options[i];
-            if (opt.selected) {
-                result.push(opt.value || opt.text);
+    function getSelectValues(select) {
+        let selected = [];
+        for(let option of select){
+            if(option.selected){
+                selected.push(option.value);
             }
         }
-        //return result;
-        console.log(result);
-    }*/
+        console.log(selected);
+        return selected;
+    }
     function filter(){
         let from, till, carId;
         if(document.getElementById('dateFrom').value == ""){
@@ -124,6 +153,21 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         }
         else{
             //console.log(document.getElementById('dateTill').value);
+            let compareDate = new Date(from);
+            let newDate = new Date(compareDate.setMonth(compareDate.getMonth()+1));
+            //console.log(newDate);
+            let currentDate=new Date();
+            if(newDate<currentDate){
+                let today = returnDateString(newDate);
+                document.getElementById("dateTill").max=today;
+                document.getElementById("dateTill").min=from;
+            }
+            else{
+                let currentDate = new Date() ;
+                let today = returnDateString(currentDate);
+                document.getElementById("dateTill").max=today;
+                document.getElementById("dateTill").min=from;
+            }
             till = document.getElementById('dateTill').value;
         }
         let selectedCars = document.getElementById('cars');
@@ -135,14 +179,19 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         //}
         //else{
             carId = selectedCars.options[selectedCars.selectedIndex].value;
+        //carId = getSelectValues(selectedCars.options);
+        //console.log(getSelectValues(selectedCars.options));
         //}
-        console.log(from + "," + till + "," + carId);
+        //console.log(from + "," + till + "," + carId);
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 let object = JSON.parse(xmlhttp.responseText);
                 //console.log(object);
                 //console.log(xmlhttp.responseText);
+                if(object == null){
+                    alert("An error was made in data choice. Make sure the start and end dates are logical!");
+                }
                 let position = {lat: object[0].start.lat, lng: object[0].start.lng};
                 map = new google.maps.Map(document.getElementById("map"), {
                     zoom: 8,
@@ -152,10 +201,6 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
                     position: position,
                     map: map,
                 });
-                //);
-                //Šis pagaidām nestrādā, jāizdomā, kā citādāk iet cauri atsūtītajam objektam
-                //console.log(object[0]);
-                //console.log(object[1]);
                 object.forEach((route)=>{
                     let stops = route;
                     let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
@@ -163,18 +208,58 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
                         position: positionAdditional,
                         map: map,
                     });
+                    let infoContent= "<p>Start time: "+stops.start.time+"</p>"+
+                        "<p>Start address: "+stops.start.address+"</p>";
                     //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
                     //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
                     if(stops.hasOwnProperty('end')){
                         //console.log("ir end");
+                        infoContent = infoContent +
+                            "<p>Stop time: "+stops.end.time+"</p>"+
+                            "<p>Stop address: "+stops.end.address+"</p>";
+                        let infowindow = new google.maps.InfoWindow({
+                            content: infoContent,
+                        });
+                        //Puts the infoWindow on the last stop, instead of individual stops
+                        //Is it even possible to put it on each start marker?
+                        //Without saving all markers in a seperate array or something
+                        //Jo izveido katram marker click event, taču, kad notiek šis click, tad jau marker mainīgajam
+                        //ir cita pozīcija, usually pati pēdējā, kas ielikta kartē.
+                        marker.addListener("click", ()=>{
+                            //console.log(positionAdditional);
+                            /*infowindow.open({
+                                anchor: marker,
+                                map:map,
+                                shouldFocus: false,
+                            });
+                            infowindow.setPosition(positionAdditional);*/
+                            document.getElementById("Route_info").innerHTML=infoContent;
+                            //marker.setLabel("P");
+                        });
                         positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
                         marker = new google.maps.Marker({
                             position: positionAdditional,
                             map: map,
                         });
                     }
+                    else{
+                        let infowindow = new google.maps.InfoWindow({
+                            content: infoContent,
+                        });
+                        marker.addListener("click", ()=>{
+                            //console.log(positionAdditional);
+                            /*infowindow.open({
+                                anchor: marker,
+                                map:map,
+                                shouldFocus: false,
+                            });
+                            infowindow.setPosition(positionAdditional);*/
+                            document.getElementById("Route_info").innerHTML=infoContent;
+                            //marker.setLabel("P");
+                        });
+                    }
                     if(stops.type=="route"){
-                        console.log("Ir route");
+                        //console.log("Ir route");
                         let path = google.maps.geometry.encoding.decodePath(stops.polyline);
                         //console.log(path);
                         let lineSymbol = {
@@ -196,7 +281,7 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
                 });
             }
         }
-        console.log("../controllers/RouteController.php?routeAction=infoRouteCarDates&from="+from+"&till="+till+"&carId="+carId)
+        //console.log("../controllers/RouteController.php?routeAction=infoRouteCarDates&from="+from+"&till="+till+"&carId="+carId)
         xmlhttp.open("GET", "../controllers/RouteController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
         xmlhttp.send();
     }
