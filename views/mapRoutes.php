@@ -33,7 +33,8 @@
     window.onload = function() {
         pageLoad();
     };
-    document.getElementById("press_me").addEventListener("click",initMaps,false);
+    //document.getElementById("press_me").addEventListener("click",initMaps,false);
+    document.getElementById("press_me").addEventListener("click",initMap,false);
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
     document.getElementById("reset").addEventListener("click",initMap,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
@@ -186,106 +187,114 @@
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                let object = JSON.parse(xmlhttp.responseText);
-                //console.log(object);
-                //console.log(xmlhttp.responseText);
-                if(object == null){
-                    alert("An error was made in data choice. Make sure the start and end dates are logical!");
-                }
-                let position = {lat: object[0].start.lat, lng: object[0].start.lng};
-                map = new google.maps.Map(document.getElementById("map"), {
-                    zoom: 8,
-                    center: position,
-                });
-                let marker = new google.maps.Marker({
-                    position: position,
-                    map: map,
-                });
-                object.forEach((route)=>{
-                    let stops = route;
-                    let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
-                    marker = new google.maps.Marker({
-                        position: positionAdditional,
+                //Mistisko simbolu, kas randomly parādās json response, dēļ, izveidoju try/catch, lai paziņotu par kļūdu, ja šie simboli parādās
+                try {
+                    let object = JSON.parse(xmlhttp.responseText);
+                } catch (err) {
+                    //alert(err.message);
+                    alert("There was an error processing data. Try again or switch around filter options");
+                } finally {
+                    let object = JSON.parse(xmlhttp.responseText);
+                    //console.log(object);
+                    //console.log(xmlhttp.responseText);
+                    if (object == null) {
+                        alert("An error was made in data choice. Make sure the start and end dates are logical!");
+                    }
+                    let position = {lat: object[0].start.lat, lng: object[0].start.lng};
+                    map = new google.maps.Map(document.getElementById("map"), {
+                        zoom: 8,
+                        center: position,
+                    });
+                    let marker = new google.maps.Marker({
+                        position: position,
                         map: map,
                     });
-                    let infoContent= "<p>Start time: "+stops.start.time+"</p>"+
-                        "<p>Start address: "+stops.start.address+"</p>";
-                    //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
-                    //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
-                    if(stops.hasOwnProperty('end')){
-                        //console.log("ir end");
-                        infoContent = infoContent +
-                            "<p>Stop time: "+stops.end.time+"</p>"+
-                            "<p>Stop address: "+stops.end.address+"</p>";
-                        let infowindow = new google.maps.InfoWindow({
-                            content: infoContent,
-                        });
-                        //Puts the infoWindow on the last stop, instead of individual stops
-                        //Is it even possible to put it on each start marker?
-                        //Without saving all markers in a seperate array or something
-                        //Jo izveido katram marker click event, taču, kad notiek šis click, tad jau marker mainīgajam
-                        //ir cita pozīcija, usually pati pēdējā, kas ielikta kartē.
-                        marker.addListener("click", ()=>{
-                            //console.log(positionAdditional);
-                            /*infowindow.open({
-                                anchor: marker,
-                                map:map,
-                                shouldFocus: false,
-                            });
-                            infowindow.setPosition(positionAdditional);*/
-                            document.getElementById("Route_info").innerHTML=infoContent;
-                            //marker.setLabel("P");
-                        });
-                        positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
+                    object.forEach((route) => {
+                        let stops = route;
+                        let positionAdditional = {lat: stops.start.lat, lng: stops.start.lng};
                         marker = new google.maps.Marker({
                             position: positionAdditional,
                             map: map,
                         });
-                    }
-                    else{
-                        let infowindow = new google.maps.InfoWindow({
-                            content: infoContent,
-                        });
-                        marker.addListener("click", ()=>{
-                            //console.log(positionAdditional);
-                            /*infowindow.open({
-                                anchor: marker,
-                                map:map,
-                                shouldFocus: false,
+                        let infoContent = "<p>Start time: " + stops.start.time + "</p>" +
+                            "<p>Start address: " + stops.start.address + "</p>";
+                        //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
+                        //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
+                        if (stops.hasOwnProperty('end')) {
+                            //console.log("ir end");
+                            infoContent = infoContent +
+                                "<p>Stop time: " + stops.end.time + "</p>" +
+                                "<p>Stop address: " + stops.end.address + "</p>";
+                            let infowindow = new google.maps.InfoWindow({
+                                content: infoContent,
                             });
-                            infowindow.setPosition(positionAdditional);*/
-                            document.getElementById("Route_info").innerHTML=infoContent;
-                            //marker.setLabel("P");
-                        });
-                    }
-                    if(stops.type=="route"){
-                        //console.log("Ir route");
-                        let path = google.maps.geometry.encoding.decodePath(stops.polyline);
-                        //console.log(path);
-                        let lineSymbol = {
-                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-                        };
-                        let drivingPath = new google.maps.Polyline({
-                            path: path,
-                            geodesic:true,
-                            strokeColor: "#4FDA12",
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2,
-                            icons: [{
-                                icon: lineSymbol,
-                                offset: '100%'
-                            }],
-                            map: map,
-                        });
-                    }
-                });
+                            //Puts the infoWindow on the last stop, instead of individual stops
+                            //Is it even possible to put it on each start marker?
+                            //Without saving all markers in a seperate array or something
+                            //Jo izveido katram marker click event, taču, kad notiek šis click, tad jau marker mainīgajam
+                            //ir cita pozīcija, usually pati pēdējā, kas ielikta kartē.
+                            marker.addListener("click", () => {
+                                //console.log(positionAdditional);
+                                /*infowindow.open({
+                                    anchor: marker,
+                                    map:map,
+                                    shouldFocus: false,
+                                });
+                                infowindow.setPosition(positionAdditional);*/
+                                document.getElementById("Route_info").innerHTML = infoContent;
+                                //marker.setLabel("P");
+                            });
+                            positionAdditional = {lat: stops.end.lat, lng: stops.end.lng};
+                            marker = new google.maps.Marker({
+                                position: positionAdditional,
+                                map: map,
+                            });
+                        } else {
+                            let infowindow = new google.maps.InfoWindow({
+                                content: infoContent,
+                            });
+                            marker.addListener("click", () => {
+                                //console.log(positionAdditional);
+                                /*infowindow.open({
+                                    anchor: marker,
+                                    map:map,
+                                    shouldFocus: false,
+                                });
+                                infowindow.setPosition(positionAdditional);*/
+                                document.getElementById("Route_info").innerHTML = infoContent;
+                                //marker.setLabel("P");
+                            });
+                        }
+                        if (stops.type == "route") {
+                            //console.log("Ir route");
+                            let path = google.maps.geometry.encoding.decodePath(stops.polyline);
+                            //console.log(path);
+                            let lineSymbol = {
+                                path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+                            };
+                            let drivingPath = new google.maps.Polyline({
+                                path: path,
+                                geodesic: true,
+                                strokeColor: "#4FDA12",
+                                strokeOpacity: 1.0,
+                                strokeWeight: 2,
+                                icons: [{
+                                    icon: lineSymbol,
+                                    offset: '100%'
+                                }],
+                                map: map,
+                            });
+                        }
+                    });
+                }
             }
         }
         //console.log("../controllers/RouteController.php?routeAction=infoRouteCarDates&from="+from+"&till="+till+"&carId="+carId)
         xmlhttp.open("GET", "../controllers/RouteController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
         xmlhttp.send();
     }
-    function initMaps(){
+    //function initMaps(){
+        function initMap(){
                 /*
                 Kad saņem kaut ko no servera-
                 Pārveido atsūtīto json objektu, lai var iet cauri,
@@ -369,7 +378,7 @@
     }
     // Initialize and add the map
     //Šis ir ņemts no oficālā documentation google maps API, kā piemērs, kurš strādā.
-    function initMap() {
+    /*function initMap() {
         // The location of Uluru
         const uluru = { lat: -25.344, lng: 131.031 };
         // The map, centered at Uluru
@@ -382,7 +391,7 @@
             position: uluru,
             map: map
         });
-    }
+    }*/
     //Testa funkcija, lai saprastu, kā strādā polylines, un vai problēma ir ar pašu kodu, vai ar ievaddatiem
     function testpoly(){
         let path = google.maps.geometry.encoding.decodePath(polyline);
