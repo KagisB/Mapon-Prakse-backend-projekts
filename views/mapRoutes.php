@@ -1,9 +1,20 @@
 <!DOCTYPE html>
 <html>
+<button id="logoutButton">Log out</button>
+<form id="logoutForm" action="../controllers/LoginController.php" method="post">
+    <input type="hidden" id="logout" name="logout" value="logout">
+</form>
 <h1>Main page having logged in</h1>
 <h3>Map</h3>
 <?php
 //google maps api key :AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w
+//Don't know, where exactly to put logout function, or how to put it in a place i can easily access it
+//without making new connections
+//Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
+//ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
+require '../controllers/LoginController.php';
+// HTML authentication
+authHTML();
 ?>
 <form id="routeSelect" action="../controllers/RouteController.php" method="post">
     <label for="cars">Select a car</label>
@@ -37,11 +48,14 @@
     document.getElementById("press_me").addEventListener("click",initMap,false);
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
     document.getElementById("reset").addEventListener("click",initMap,false);
+    document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php. Pagaidām temp alert, lai pārbaudītu, vai strādā šis listener.
     document.getElementById("filter").addEventListener("click",filter,false);
     //document.getElementById("test").addEventListener("click",getSelectValues(),false);
-
+    function sendLogOut(){
+        document.getElementById("logoutForm").submit();
+    }
     //Šī funkcija uzliek mašīnu sarakstu pie izvēles opcijām, kā arī uzliek pašreizējo laiku kā max value
     //dateTill izvēlei
     function pageLoad(){
@@ -183,7 +197,7 @@
         //carId = getSelectValues(selectedCars.options);
         //console.log(getSelectValues(selectedCars.options));
         //}
-        //console.log(from + "," + till + "," + carId);
+        console.log(from + "," + till + "," + carId);
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
