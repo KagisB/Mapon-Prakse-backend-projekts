@@ -26,10 +26,13 @@ authHTML();
     <label for="dateTill">Choose end date</label>
     <input type="datetime-local" id="dateTill" name="dateTill" min="" max="">
 </form>
+<!--
 <label for="press_me">Press me</label>
 <input type="button" id="press_me">
+
 <label for="reset">Reset</label>
 <input type="button" id="reset">
+---->
 <label for="filter">Filter data</label>
 <input type="button" id="filter">
 <label for="test">Test polyline</label>
@@ -45,12 +48,12 @@ authHTML();
         pageLoad();
     };
     //document.getElementById("press_me").addEventListener("click",initMaps,false);
-    document.getElementById("press_me").addEventListener("click",initMap,false);
+    //document.getElementById("press_me").addEventListener("click",initMap,false);
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
-    document.getElementById("reset").addEventListener("click",initMap,false);
+    //document.getElementById("reset").addEventListener("click",initMap,false);
     document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
-    // un route.php. Pagaidām temp alert, lai pārbaudītu, vai strādā šis listener.
+    // un route.php.
     document.getElementById("filter").addEventListener("click",filter,false);
     //document.getElementById("test").addEventListener("click",getSelectValues(),false);
     function sendLogOut(){
@@ -113,6 +116,7 @@ authHTML();
             //console.log(today);
             document.getElementById("dateTill").max=today;
         }
+        //document.getElementById("dateTill").focus();
         //console.log(document.getElementById("dateTill").min);
         //console.log(document.getElementById("dateTill").max);
     }
@@ -151,9 +155,11 @@ authHTML();
                 selected.push(option.value);
             }
         }
-        console.log(selected);
+        //console.log(selected);
         return selected;
     }
+    //Main function, that collects user inputs from the form, and then uses them to request data from the server
+    //Then processes that received data and displays it on a map
     function filter(){
         let from, till, carId;
         if(document.getElementById('dateFrom').value == ""){
@@ -186,15 +192,16 @@ authHTML();
             till = document.getElementById('dateTill').value;
         }
         let selectedCars = document.getElementById('cars');
-        //let carIds = getSelectValues(selectedCars);
         //šeit pašlaik automātiski izvēlās pirmo mašīnu sarakstā, bet gan jau jāpārveido atsevišķi, lai checo, vai
         //vispār ir izvēlēts kaut kas, ja nav, tad izsauc citu funkciju, kurā nevajag mašīnas id
         //if(carIds[0] == null){
         //    alert("Choose a car");
         //}
         //else{
-            carId = selectedCars.options[selectedCars.selectedIndex].value;
-        //carId = getSelectValues(selectedCars.options);
+            //carId = selectedCars.options[selectedCars.selectedIndex].value;
+        carId = getSelectValues(selectedCars.options);
+        //let carId2 = getSelectValues(selectedCars.options);
+        //console.log(carId2);
         //console.log(getSelectValues(selectedCars.options));
         //}
         console.log(from + "," + till + "," + carId);
@@ -209,97 +216,125 @@ authHTML();
                     alert("There was an error processing data. Try again or switch around filter options");
                 } finally {
                     let object = JSON.parse(xmlhttp.responseText);
-                    //console.log(object);
+                    console.log(object);
                     //console.log(xmlhttp.responseText);
                     if (object == null) {
                         alert("An error was made in data choice. Make sure the start and end dates are logical!");
                     }
-                    let position = {lat: object[0].start.lat, lng: object[0].start.lng};
+                    let position = {lat: object.units[0].routes[0].start.lat, lng: object.units[0].routes[0].start.lng};
                     map = new google.maps.Map(document.getElementById("map"), {
                         zoom: 8,
                         center: position,
                     });
-                    let marker = new google.maps.Marker({
-                        position: position,
-                        map: map,
-                    });
-                    object.forEach((route) => {
-                        let stops = route;
-                        let positionAdditional = {lat: stops.start.lat, lng: stops.start.lng};
-                        marker = new google.maps.Marker({
-                            position: positionAdditional,
+                    if(object.units[0].unit_id==carId[0]){
+                        let marker = new google.maps.Marker({
+                            position: position,
                             map: map,
                         });
-                        let infoContent = "<p>Start time: " + stops.start.time + "</p>" +
-                            "<p>Start address: " + stops.start.address + "</p>";
-                        //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
-                        //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
-                        if (stops.hasOwnProperty('end')) {
-                            //console.log("ir end");
-                            infoContent = infoContent +
-                                "<p>Stop time: " + stops.end.time + "</p>" +
-                                "<p>Stop address: " + stops.end.address + "</p>";
-                            let infowindow = new google.maps.InfoWindow({
-                                content: infoContent,
-                            });
-                            //Puts the infoWindow on the last stop, instead of individual stops
-                            //Is it even possible to put it on each start marker?
-                            //Without saving all markers in a seperate array or something
-                            //Jo izveido katram marker click event, taču, kad notiek šis click, tad jau marker mainīgajam
-                            //ir cita pozīcija, usually pati pēdējā, kas ielikta kartē.
-                            marker.addListener("click", () => {
-                                //console.log(positionAdditional);
-                                /*infowindow.open({
-                                    anchor: marker,
-                                    map:map,
-                                    shouldFocus: false,
-                                });
-                                infowindow.setPosition(positionAdditional);*/
-                                document.getElementById("Route_info").innerHTML = infoContent;
-                                //marker.setLabel("P");
-                            });
-                            positionAdditional = {lat: stops.end.lat, lng: stops.end.lng};
+                    }
+
+                    //console.log(object);
+                    //console.log(object.units.length);
+                    //console.log(object.units[0]);
+                    for(let i =0; i<object.units.length;i++){
+                    //object.forEach((unit)=>{
+                        let unit = object.units[i];
+                        //console.log(unit);
+                        for(let j=0;j<unit.routes.length;j++){
+                        //unit.forEach((route) => {
+                            let stops = unit.routes[j];
+                            let positionAdditional = {lat: stops.start.lat, lng: stops.start.lng};
                             marker = new google.maps.Marker({
                                 position: positionAdditional,
                                 map: map,
                             });
-                        } else {
-                            let infowindow = new google.maps.InfoWindow({
-                                content: infoContent,
-                            });
-                            marker.addListener("click", () => {
-                                //console.log(positionAdditional);
-                                /*infowindow.open({
-                                    anchor: marker,
-                                    map:map,
-                                    shouldFocus: false,
+                            let infoContent = "<p>Start time: " + stops.start.time + "</p>" +
+                                "<p>Start address: " + stops.start.address + "</p>";
+                            //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
+                            //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
+                            if (stops.hasOwnProperty('end')) {
+                                //console.log("ir end");
+                                infoContent = infoContent +
+                                    "<p>Stop time: " + stops.end.time + "</p>" +
+                                    "<p>Stop address: " + stops.end.address + "</p>";
+                                let infowindow = new google.maps.InfoWindow({
+                                    content: infoContent,
                                 });
-                                infowindow.setPosition(positionAdditional);*/
-                                document.getElementById("Route_info").innerHTML = infoContent;
-                                //marker.setLabel("P");
-                            });
+                                //Puts the infoWindow on the last stop, instead of individual stops
+                                //Is it even possible to put it on each start marker?
+                                //Without saving all markers in a seperate array or something
+                                //Jo izveido katram marker click event, taču, kad notiek šis click, tad jau marker mainīgajam
+                                //ir cita pozīcija, usually pati pēdējā, kas ielikta kartē.
+                                marker.addListener("click", () => {
+                                    //console.log(positionAdditional);
+                                    /*infowindow.open({
+                                        anchor: marker,
+                                        map:map,
+                                        shouldFocus: false,
+                                    });
+                                    infowindow.setPosition(positionAdditional);*/
+                                    document.getElementById("Route_info").innerHTML = infoContent;
+                                    //marker.setLabel("P");
+                                });
+                                positionAdditional = {lat: stops.end.lat, lng: stops.end.lng};
+                                marker = new google.maps.Marker({
+                                    position: positionAdditional,
+                                    map: map,
+                                });
+                            } else {
+                                let infowindow = new google.maps.InfoWindow({
+                                    content: infoContent,
+                                });
+                                marker.addListener("click", () => {
+                                    //console.log(positionAdditional);
+                                    /*infowindow.open({
+                                        anchor: marker,
+                                        map:map,
+                                        shouldFocus: false,
+                                    });
+                                    infowindow.setPosition(positionAdditional);*/
+                                    document.getElementById("Route_info").innerHTML = infoContent;
+                                    //marker.setLabel("P");
+                                });
+                            }
+                            if (stops.type == "route") {
+                                //console.log("Ir route");
+                                let path = google.maps.geometry.encoding.decodePath(stops.polyline);
+                                //console.log(path);
+                                let lineSymbol = {
+                                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+                                };
+                                let drivingPath = new google.maps.Polyline({
+                                    path: path,
+                                    geodesic: true,
+                                    strokeColor: "#4FDA12",
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 2,
+                                    icons: [{
+                                        icon: lineSymbol,
+                                        offset: '100%'
+                                    }],
+                                    map: map,
+                                });
+                            }
+                            //});
                         }
-                        if (stops.type == "route") {
-                            //console.log("Ir route");
-                            let path = google.maps.geometry.encoding.decodePath(stops.polyline);
-                            //console.log(path);
-                            let lineSymbol = {
-                                path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-                            };
-                            let drivingPath = new google.maps.Polyline({
-                                path: path,
-                                geodesic: true,
-                                strokeColor: "#4FDA12",
-                                strokeOpacity: 1.0,
-                                strokeWeight: 2,
-                                icons: [{
-                                    icon: lineSymbol,
-                                    offset: '100%'
-                                }],
-                                map: map,
-                            });
-                        }
-                    });
+                }//);
+                    //}
+                    /*data.forEach((unit) => {
+                        /*let position = {lat: object[0].start.lat, lng: object[0].start.lng};
+                        map = new google.maps.Map(document.getElementById("map"), {
+                            zoom: 8,
+                            center: position,
+                        });
+                        let marker = new google.maps.Marker({
+                            position: position,
+                            map: map,
+                        });
+
+                    });*/
+
+
                 }
             }
         }
@@ -340,7 +375,6 @@ authHTML();
                             map: map,
                         });
                         //);
-                        //Šis pagaidām nestrādā, jāizdomā, kā citādāk iet cauri atsūtītajam objektam
                         //console.log(object[0]);
                         //console.log(object[1]);
                         object.forEach((route)=>{

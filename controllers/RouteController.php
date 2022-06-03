@@ -20,18 +20,6 @@ function infoRoute(): void
     $routeStops = $unit->routes;
     $jobject = json_encode($routeStops);
     echo $jobject;
-    /*foreach ($routeStops as $routeStop) {
-        $lat=$routeStop->start->lat;
-        $lng=$routeStop->start->lng;
-        $stops[$lat]=$lng;
-        //$stops[$routeStop->end->lat]=$routeStop->end->lng;
-        //echo nl2br($route->route_id."\n");
-        //echo nl2br("End of routes for this unit \n");
-        var_dump($stops[$lat]);
-    }*/
-    //echo json_encode($stops);
-    //var_dump($routeStops);
-    //var_dump($object);
 }
 function infoRouteCar(int $carId): void
 {
@@ -56,14 +44,18 @@ function infoRouteDates(datetime $from, datetime $till): void
     $jobject = json_encode($routeStops);
     echo $jobject;
 }
-function infoRouteCarDates(datetime $from, datetime $till, int $carId): void
+function infoRouteCarDates($from,$till,$carId): void
 {
     $route = new Route();
     $object = $route->getRoutesCarTime($from,$till,$carId);
-    $unit = $object->data->units[0];
+    //$unit = $object->data->units[0];
     //echo $object->data->units[1]->unit_id;
-    $routeStops = $unit->routes;
-    $jobject = json_encode($routeStops);
+    //$routeStops = $unit->routes;
+    //$jobject = json_encode($routeStops);
+    ///Will have to change so it basically sends the whole json file instead of just the routes part
+    /// and will have to rewrite the part of code processing that data, to accommodate to this change
+    $data=$object->data;
+    $jobject = json_encode($data);
     //echo $routeStops[0]->route_id;
     echo $jobject;
 }
@@ -108,6 +100,7 @@ switch ($action) {
     case "infoRoutesCarDate":
         //infoRouteCarDates($_GET["from"],$_GET["till"],$_GET["carId"]);
         //echo "Got into switch statement right case";
+        //echo $carId;
         infoRouteCarDates($from,$till,$carId);
         break;
 }
