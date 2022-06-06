@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html>
+<button id="logoutButton">Log out</button>
+<form id="logoutForm" action="../controllers/LoginController.php" method="post">
+    <input type="hidden" id="logout" name="logout" value="logout">
+</form>
 <h1>Main page having logged in</h1>
 <h3>Map</h3>
 <?php
 //google maps api key :AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w
-//Varbūt te paņemt json failu, un tad viņu pārmest šajā lapā jau?
+//Don't know, where exactly to put logout function, or how to put it in a place i can easily access it
+//without making new connections
+//Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
+//ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
+require '../controllers/LoginController.php';
+// HTML authentication
+authHTML();
 ?>
 <form id="routeSelect" action="../controllers/RouteController.php" method="post">
     <label for="cars">Select a car</label>
@@ -16,19 +26,19 @@
     <label for="dateTill">Choose end date</label>
     <input type="datetime-local" id="dateTill" name="dateTill" min="" max="">
 </form>
+<!--
 <label for="press_me">Press me</label>
 <input type="button" id="press_me">
+
 <label for="reset">Reset</label>
 <input type="button" id="reset">
+---->
 <label for="filter">Filter data</label>
 <input type="button" id="filter">
 <label for="test">Test polyline</label>
 <input type="button" id="test">
+<!---- šeit ir atsevišķš div, kurā glabāsies info par maršrutiem. Varbūt labāk gan tos attēlot kā info windows----->
 <div id="Route_info"></div>
-<!---
-Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, bet varbūt arī likt lietotājam to nospiest
--->
-
 
 <div id="map" style="width:100%;height:750px;"></div>
 <script>
@@ -37,13 +47,22 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
     window.onload = function() {
         pageLoad();
     };
-    document.getElementById("press_me").addEventListener("click",initMaps,false);
+
+    //document.getElementById("press_me").addEventListener("click",initMaps,false);
+    //document.getElementById("press_me").addEventListener("click",initMap,false);
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
-    document.getElementById("reset").addEventListener("click",initMap,false);
+    //document.getElementById("reset").addEventListener("click",initMap,false);
+    document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
+    //document.getElementById("press_me").addEventListener("click",initMaps,false);
+    //document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
+    //document.getElementById("reset").addEventListener("click",initMap,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
-    // un route.php. Pagaidām temp alert, lai pārbaudītu, vai strādā šis listener.
+    // un route.php.
     document.getElementById("filter").addEventListener("click",filter,false);
     //document.getElementById("test").addEventListener("click",getSelectValues(),false);
+    function sendLogOut(){
+        document.getElementById("logoutForm").submit();
+    }
     //Šī funkcija uzliek mašīnu sarakstu pie izvēles opcijām, kā arī uzliek pašreizējo laiku kā max value
     //dateTill izvēlei
     function pageLoad(){
@@ -70,7 +89,7 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         xmlhttp.send();
         let currentDate = new Date() ;
         let today = returnDateString(currentDate);
-        console.log(today);
+        //console.log(today);
         //document.getElementById("dateTill").setAttribute("max",today);
         document.getElementById("dateTill").max=today;
     }
@@ -78,8 +97,11 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         /*
         Paņem min date, pieliek mēnesi klāt, ja tas ir senāk par šodienu, noliek max uz
         to datumu. Arī pie reizes uzliek min vērtību, kas ir vienāda ar from datumu.
+
+        Laikus saliek pareizi min/max, bet lietotājs var uzlikt citu stundu/minūti, kas salauž funkciju
          */
-        console.log("Ieiet laika mainīšanas funkcijā");
+        //console.log("Ieiet laika mainīšanas funkcijā");
+
         let minDate = new Date(document.getElementById("dateFrom").value);
         let today = returnDateString(minDate);
         //console.log(today);
@@ -88,7 +110,9 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         newDate.setMonth(newDate.getMonth()+1);
         //let newDate = new Date(minDate.setMonth(minDate.getMonth()+1));
         let currentDate = new Date();
-        today = returnDateString(minDate);
+
+        //today = returnDateString(minDate);
+
         //console.log(today);
         if(newDate<currentDate){
             today=returnDateString(newDate);
@@ -100,6 +124,8 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
             //console.log(today);
             document.getElementById("dateTill").max=today;
         }
+        //document.getElementById("dateTill").focus();
+
         //console.log(document.getElementById("dateTill").min);
         //console.log(document.getElementById("dateTill").max);
     }
@@ -131,20 +157,18 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
         return today;
     }
     //Funkcija, lai atlasītu select vērtības no saraksta, ja gadījumā ir vairākas vērtības
-    /*function getSelectValues(select) {
-        let result = [];
-        let options = select && select.options;
-        let opt;
-
-        for (let i=0, iLen=options.length; i<iLen; i++) {
-            opt = options[i];
-            if (opt.selected) {
-                result.push(opt.value || opt.text);
+    function getSelectValues(select) {
+        let selected = [];
+        for(let option of select){
+            if(option.selected){
+                selected.push(option.value);
             }
         }
-        //return result;
-        console.log(result);
-    }*/
+        //console.log(selected);
+        return selected;
+    }
+    //Main function, that collects user inputs from the form, and then uses them to request data from the server
+    //Then processes that received data and displays it on a map
     function filter(){
         let from, till, carId;
         if(document.getElementById('dateFrom').value == ""){
@@ -177,76 +201,159 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
             till = document.getElementById('dateTill').value;
         }
         let selectedCars = document.getElementById('cars');
-        //let carIds = getSelectValues(selectedCars);
         //šeit pašlaik automātiski izvēlās pirmo mašīnu sarakstā, bet gan jau jāpārveido atsevišķi, lai checo, vai
         //vispār ir izvēlēts kaut kas, ja nav, tad izsauc citu funkciju, kurā nevajag mašīnas id
         //if(carIds[0] == null){
         //    alert("Choose a car");
         //}
         //else{
-            carId = selectedCars.options[selectedCars.selectedIndex].value;
+            //carId = selectedCars.options[selectedCars.selectedIndex].value;
+        carId = getSelectValues(selectedCars.options);
+        //let carId2 = getSelectValues(selectedCars.options);
+        //console.log(carId2);
+        //console.log(getSelectValues(selectedCars.options));
         //}
         console.log(from + "," + till + "," + carId);
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                let object = JSON.parse(xmlhttp.responseText);
-                //console.log(object);
-                //console.log(xmlhttp.responseText);
-                let position = {lat: object[0].start.lat, lng: object[0].start.lng};
-                map = new google.maps.Map(document.getElementById("map"), {
-                    zoom: 8,
-                    center: position,
-                });
-                let marker = new google.maps.Marker({
-                    position: position,
-                    map: map,
-                });
-                object.forEach((route)=>{
-                    let stops = route;
-                    let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
-                    marker = new google.maps.Marker({
-                        position: positionAdditional,
-                        map: map,
+                //Mistisko simbolu, kas randomly parādās json response, dēļ, izveidoju try/catch, lai paziņotu par kļūdu, ja šie simboli parādās
+                try {
+                    let object = JSON.parse(xmlhttp.responseText);
+                } catch (err) {
+                    //alert(err.message);
+                    alert("There was an error processing data. Try again or switch around filter options");
+                } finally {
+                    let object = JSON.parse(xmlhttp.responseText);
+                    console.log(object);
+                    //console.log(xmlhttp.responseText);
+                    if (object == null) {
+                        alert("An error was made in data choice. Make sure the start and end dates are logical!");
+                    }
+                    let position = {lat: object.units[0].routes[0].start.lat, lng: object.units[0].routes[0].start.lng};
+                    map = new google.maps.Map(document.getElementById("map"), {
+                        zoom: 8,
+                        center: position,
+
                     });
-                    //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
-                    //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
-                    if(stops.hasOwnProperty('end')){
-                        //console.log("ir end");
-                        positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
-                        marker = new google.maps.Marker({
-                            position: positionAdditional,
+                    if(object.units[0].unit_id==carId[0]){
+                        let marker = new google.maps.Marker({
+                            position: position,
                             map: map,
                         });
                     }
-                    if(stops.type=="route"){
-                        console.log("Ir route");
-                        let path = google.maps.geometry.encoding.decodePath(stops.polyline);
-                        //console.log(path);
-                        let lineSymbol = {
-                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-                        };
-                        let drivingPath = new google.maps.Polyline({
-                            path: path,
-                            geodesic:true,
-                            strokeColor: "#4FDA12",
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2,
-                            icons: [{
-                                icon: lineSymbol,
-                                offset: '100%'
-                            }],
+
+                    //console.log(object);
+                    //console.log(object.units.length);
+                    //console.log(object.units[0]);
+                    for(let i =0; i<object.units.length;i++){
+                    //object.forEach((unit)=>{
+                        let unit = object.units[i];
+                        //console.log(unit);
+                        for(let j=0;j<unit.routes.length;j++){
+                        //unit.forEach((route) => {
+                            let stops = unit.routes[j];
+                            let positionAdditional = {lat: stops.start.lat, lng: stops.start.lng};
+                            marker = new google.maps.Marker({
+                                position: positionAdditional,
+                                map: map,
+                            });
+                            let infoContent = "<p>Start time: " + stops.start.time + "</p>" +
+                                "<p>Start address: " + stops.start.address + "</p>";
+                            //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
+                            //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
+                            if (stops.hasOwnProperty('end')) {
+                                //console.log("ir end");
+                                infoContent = infoContent +
+                                    "<p>Stop time: " + stops.end.time + "</p>" +
+                                    "<p>Stop address: " + stops.end.address + "</p>";
+                                let infowindow = new google.maps.InfoWindow({
+                                    content: infoContent,
+                                });
+                                //Puts the infoWindow on the last stop, instead of individual stops
+                                //Is it even possible to put it on each start marker?
+                                //Without saving all markers in a seperate array or something
+                                //Jo izveido katram marker click event, taču, kad notiek šis click, tad jau marker mainīgajam
+                                //ir cita pozīcija, usually pati pēdējā, kas ielikta kartē.
+                                marker.addListener("click", () => {
+                                    //console.log(positionAdditional);
+                                    /*infowindow.open({
+                                        anchor: marker,
+                                        map:map,
+                                        shouldFocus: false,
+                                    });
+                                    infowindow.setPosition(positionAdditional);*/
+                                    document.getElementById("Route_info").innerHTML = infoContent;
+                                    //marker.setLabel("P");
+                                });
+                                positionAdditional = {lat: stops.end.lat, lng: stops.end.lng};
+                                marker = new google.maps.Marker({
+                                    position: positionAdditional,
+                                    map: map,
+                                });
+                            } else {
+                                let infowindow = new google.maps.InfoWindow({
+                                    content: infoContent,
+                                });
+                                marker.addListener("click", () => {
+                                    //console.log(positionAdditional);
+                                    /*infowindow.open({
+                                        anchor: marker,
+                                        map:map,
+                                        shouldFocus: false,
+                                    });
+                                    infowindow.setPosition(positionAdditional);*/
+                                    document.getElementById("Route_info").innerHTML = infoContent;
+                                    //marker.setLabel("P");
+                                });
+                            }
+                            if (stops.type == "route") {
+                                //console.log("Ir route");
+                                let path = google.maps.geometry.encoding.decodePath(stops.polyline);
+                                //console.log(path);
+                                let lineSymbol = {
+                                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+                                };
+                                let drivingPath = new google.maps.Polyline({
+                                    path: path,
+                                    geodesic: true,
+                                    strokeColor: "#4FDA12",
+                                    strokeOpacity: 1.0,
+                                    strokeWeight: 2,
+                                    icons: [{
+                                        icon: lineSymbol,
+                                        offset: '100%'
+                                    }],
+                                    map: map,
+                                });
+                            }
+                            //});
+                        }
+                }//);
+                    //}
+                    /*data.forEach((unit) => {
+                        /*let position = {lat: object[0].start.lat, lng: object[0].start.lng};
+                        map = new google.maps.Map(document.getElementById("map"), {
+                            zoom: 8,
+                            center: position,
+                        });
+                        let marker = new google.maps.Marker({
+                            position: position,
                             map: map,
                         });
-                    }
-                });
+
+                    });*/
+
+
+                }
             }
         }
-        console.log("../controllers/RouteController.php?routeAction=infoRouteCarDates&from="+from+"&till="+till+"&carId="+carId)
+        //console.log("../controllers/RouteController.php?routeAction=infoRouteCarDates&from="+from+"&till="+till+"&carId="+carId)
         xmlhttp.open("GET", "../controllers/RouteController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
         xmlhttp.send();
     }
-    function initMaps(){
+    //function initMaps(){
+        function initMap(){
                 /*
                 Kad saņem kaut ko no servera-
                 Pārveido atsūtīto json objektu, lai var iet cauri,
@@ -278,7 +385,6 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
                             map: map,
                         });
                         //);
-                        //Šis pagaidām nestrādā, jāizdomā, kā citādāk iet cauri atsūtītajam objektam
                         //console.log(object[0]);
                         //console.log(object[1]);
                         object.forEach((route)=>{
@@ -330,7 +436,7 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
     }
     // Initialize and add the map
     //Šis ir ņemts no oficālā documentation google maps API, kā piemērs, kurš strādā.
-    function initMap() {
+    /*function initMap() {
         // The location of Uluru
         const uluru = { lat: -25.344, lng: 131.031 };
         // The map, centered at Uluru
@@ -343,7 +449,7 @@ Te vajadzētu gan jau js funkciju, kas uz izmaiņām sūta datus uz php failu, b
             position: uluru,
             map: map
         });
-    }
+    }*/
     //Testa funkcija, lai saprastu, kā strādā polylines, un vai problēma ir ar pašu kodu, vai ar ievaddatiem
     function testpoly(){
         let path = google.maps.geometry.encoding.decodePath(polyline);

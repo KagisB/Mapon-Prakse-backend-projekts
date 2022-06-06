@@ -57,7 +57,7 @@ class Route{
         $object = json_decode($jobject);
         return $object;
     }
-    public function getRoutesCarTime(dateTime $from, dateTime $till,int $carId): object{
+    public function getRoutesCarTime($from,$till,$carId): object{
         //https://mapon.com/api/v1/unit/list.json
         $date = $from;
         $time = $date->format(DATE_ATOM);
@@ -66,8 +66,23 @@ class Route{
         $date2 = $till;
         $time = $date2->format(DATE_ATOM);
         $time=str_replace("+00:00","Z",$time);
-        $url=$url."&till=".$time."&unit_id=".$carId."&include[]=polyline";
+        //$unitIds = http_build_query(array('unit_id' => $carId));
+        //$url=$url."&till=".$time."&unit_id=".$carIds."&include[]=polyline";
+        $url=$url."&till=".$time."&";
+        $it = 0;
+        //echo $carId;
+        //var_dump($carId);
+        $carIds = explode(',',$carId);
+        foreach($carIds as $car){
+                //echo $car;
+                $url = $url."unit_id[".$it."]=".$car."&";
+                $it++;
+        }
+        $url=$url."include[]=polyline";
         //echo $url;
+        //echo $url;
+        //parse_str($carId, $carIds);
+        //echo http_build_query($carIds);
         $jobject = file_get_contents($url);
         //echo $jobject;
         $object = json_decode($jobject);
@@ -75,8 +90,8 @@ class Route{
         return $object;
     }
 }
-/*$from = new DateTime("2022-05-18T13:14");
-$till = new DateTime("2022-05-30T12:14");
+/*$from = new DateTime("2022-05-25T11:21");
+$till = new DateTime("2022-06-02T11:21");
 $carId= 66466;
 $route = new Route();
 $object = $route->getRoutesCarTime($from,$till,$carId);*/

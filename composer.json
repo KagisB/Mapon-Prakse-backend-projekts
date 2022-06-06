@@ -1,6 +1,7 @@
 {
   "require": {
     "ext-mysqli": "*",
-    "ext-curl": "*"
+    "ext-curl": "*",
+    "phpauth/phpauth": "dev-master"
   }
 }
