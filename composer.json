@@ -3,5 +3,8 @@
     "ext-mysqli": "*",
     "ext-curl": "*",
     "phpauth/phpauth": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {"App\\": "app/"}
   }
 }
