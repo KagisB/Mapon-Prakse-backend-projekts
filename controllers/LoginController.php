@@ -7,8 +7,6 @@ session_start();
 //3.1.3)Ja nesakrīt, atmet atpakaļ
 //3.2)Ja neatrod lietotāju, atmet atpakaļ
 
-
-//Varbūt izmantot kādu gatavu bibliotēku šim
 //!!!Pārbaudīt, vai ievadīti ir vārdi, nevis kaut kas cits
 //$name=$_POST["name"];
 //$pass=$_POST["password"];
@@ -85,10 +83,6 @@ function isValidUser($name, $pass){
                     //echo $row["password"];
                     if(password_verify($pass,$row["password"])){
                         //echo "Parole atrasta/sakrīt";
-                        /*echo "Parole atrasta/sakrīt";
-                        //atgriež uz home page ar karti
-                        header("location:mapRoutes.php", true);
-                        exit;*/
                         return true;
                     }
                     else{///Te ir jāpārveido, lai turpina meklēt, ja gadījumā ir vairāki vienādi usernames
@@ -96,19 +90,6 @@ function isValidUser($name, $pass){
                         //header("location:login.php");
                         //exit;
                         //echo "Parole nesakrīt";
-                        /*echo "Parole nesakrīt";
-                        //$hash=password_hash($password,PASSWORD_BCRYPT);
-                        //echo nl2br($hash."\n".$row["password"]."\n");
-                        ?>
-                        <form id="login2" action="../views/login.php" method="post">
-                            <input type="hidden" name="errorCode" value="WPassword">
-                        </form>
-                        <!---
-                        <script type="text/javascript">
-                            document.getElementById('login2').submit();
-                        </script>
-                        --->
-                        <?php*/
                         return false;
                     }
                 }

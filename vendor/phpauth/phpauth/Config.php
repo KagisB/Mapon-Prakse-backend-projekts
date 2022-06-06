@@ -135,9 +135,9 @@ class Config
 
         // check table users
         try {
-            $this->dbh->query("SELECT * FROM {$this->config['table_users']} LIMIT 1;");
+            $this->dbh->query("SELECT * FROM {$this->config['Users']} LIMIT 1;");
         } catch (PDOException $e) {
-            die("PHPAuth: Config table `{$this->config['table_users']}` NOT PRESENT in given database" . PHP_EOL);
+            die("PHPAuth: Config table `{$this->config['Users']}` NOT PRESENT in given database" . PHP_EOL);
         }
 
         // Determine site language
