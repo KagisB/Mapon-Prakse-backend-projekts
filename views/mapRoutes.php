@@ -47,11 +47,15 @@ authHTML();
     window.onload = function() {
         pageLoad();
     };
+
     //document.getElementById("press_me").addEventListener("click",initMaps,false);
     //document.getElementById("press_me").addEventListener("click",initMap,false);
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
     //document.getElementById("reset").addEventListener("click",initMap,false);
     document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
+    //document.getElementById("press_me").addEventListener("click",initMaps,false);
+    //document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
+    //document.getElementById("reset").addEventListener("click",initMap,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php.
     document.getElementById("filter").addEventListener("click",filter,false);
@@ -93,9 +97,11 @@ authHTML();
         /*
         Paņem min date, pieliek mēnesi klāt, ja tas ir senāk par šodienu, noliek max uz
         to datumu. Arī pie reizes uzliek min vērtību, kas ir vienāda ar from datumu.
+
         Laikus saliek pareizi min/max, bet lietotājs var uzlikt citu stundu/minūti, kas salauž funkciju
          */
         //console.log("Ieiet laika mainīšanas funkcijā");
+
         let minDate = new Date(document.getElementById("dateFrom").value);
         let today = returnDateString(minDate);
         //console.log(today);
@@ -104,7 +110,9 @@ authHTML();
         newDate.setMonth(newDate.getMonth()+1);
         //let newDate = new Date(minDate.setMonth(minDate.getMonth()+1));
         let currentDate = new Date();
+
         //today = returnDateString(minDate);
+
         //console.log(today);
         if(newDate<currentDate){
             today=returnDateString(newDate);
@@ -117,6 +125,7 @@ authHTML();
             document.getElementById("dateTill").max=today;
         }
         //document.getElementById("dateTill").focus();
+
         //console.log(document.getElementById("dateTill").min);
         //console.log(document.getElementById("dateTill").max);
     }
@@ -225,6 +234,7 @@ authHTML();
                     map = new google.maps.Map(document.getElementById("map"), {
                         zoom: 8,
                         center: position,
+
                     });
                     if(object.units[0].unit_id==carId[0]){
                         let marker = new google.maps.Marker({
