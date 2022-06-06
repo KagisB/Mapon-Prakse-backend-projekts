@@ -3,7 +3,7 @@
 namespace App\models;
 class Car
 {
-    public $id;
+    //public int $id;
 
     public function _construct(int $n): void
     {

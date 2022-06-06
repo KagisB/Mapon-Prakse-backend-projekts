@@ -85,7 +85,7 @@ authHTML();
                 }
             }
         }
-        xmlhttp.open("GET", "../controllers/CarController.php?carAction=carList", true);
+        xmlhttp.open("GET", "../controllers/mainController.php?carAction=carList", true);
         xmlhttp.send();
         let currentDate = new Date() ;
         let today = returnDateString(currentDate);
@@ -352,7 +352,7 @@ authHTML();
             }
         }
         //console.log("../controllers/RouteController.php?routeAction=infoRouteCarDates&from="+from+"&till="+till+"&carId="+carId)
-        xmlhttp.open("GET", "../controllers/RouteController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
+        xmlhttp.open("GET", "../controllers/mainController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
         xmlhttp.send();
     }
     //function initMaps(){
@@ -433,7 +433,7 @@ authHTML();
                         });
                     }
                 }
-        xmlhttp.open("GET", "../controllers/RouteController.php?routeAction=infoRoute", true);
+        xmlhttp.open("GET", "../controllers/mainController.php?routeAction=infoRoute", true);
         xmlhttp.send();
         //alert("Tiek funkcijas beigās");
     }
