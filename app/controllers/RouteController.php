@@ -4,7 +4,12 @@
 //  Attēlo informāciju par konkrēto maršrutu mašīnai
 //  Papildus info automašīnai par maršrutiem
 //Switch statement, kur, atkarībā no darbības, izpilda noteiktu funkciju un aizsūta uz noteikto mājaslapu
-include "../models/Route.php";
+//namespace App\controllers;
+use App\models\Route;
+//use DateTime;
+require_once "../../vendor/autoload.php";
+//require_once __DIR__ . '../../vendor/autoload.php';
+//include "../models/Route.php";
 ///Funkcija saņem sarakstu ar maršrutiem, tad izvēlās pirmo maršrutu sarakstā, lai padotu to mājaslapai parādīt
 ///Vispirms saņem sarakstu, tad atrod, kur sākās pieturas
 /// Tad izveido asociatīvo masīvu, kur ir latitude un longitude koordinātas no API datiem

@@ -225,7 +225,7 @@ authHTML();
                     alert("There was an error processing data. Try again or switch around filter options");
                 } finally {
                     let object = JSON.parse(xmlhttp.responseText);
-                    console.log(object);
+                    //console.log(object);
                     //console.log(xmlhttp.responseText);
                     if (object == null) {
                         alert("An error was made in data choice. Make sure the start and end dates are logical!");
@@ -307,7 +307,10 @@ authHTML();
                                     //marker.setLabel("P");
                                 });
                             }
-                            if (stops.type == "route") {
+                            //if (stops.type == "route" ) {
+                            //Today found out that routes also have a possibility to not have an end, throwing
+                            //an undefined value to polyline. So added another check, if the route has an end.
+                            if (stops.type == "route" && stops.hasOwnProperty('end')) {
                                 //console.log("Ir route");
                                 let path = google.maps.geometry.encoding.decodePath(stops.polyline);
                                 //console.log(path);

@@ -101,7 +101,7 @@ function isValidUser($name, $pass){
 function logOut(){
     //session_start();
     session_destroy();
-    header('Location: ../views/homepage.php');
+    header('Location: ../../homepage.php');
     exit();
 }
 error_reporting(E_ALL ^ E_WARNING);

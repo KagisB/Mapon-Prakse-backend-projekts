@@ -1,12 +1,19 @@
 <?php
-class Car{
+
+namespace App\models;
+class Car
+{
     public $id;
-    public function _construct(int $n): void{
-        $id=$n;
+
+    public function _construct(int $n): void
+    {
+        $id = $n;
     }
-    public function getCar(): object{
+
+    public function getCar(): object
+    {
         //https://mapon.com/api/v1/unit/list.json
-        $url="https://mapon.com/api/v1/unit/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa";
+        $url = "https://mapon.com/api/v1/unit/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa";
         $jobject = file_get_contents($url);
         //$ch = curl_init($url);
         //curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
@@ -19,6 +26,7 @@ class Car{
         return $object;
     }
 }
-$car = new Car(1);
-$object=$car->getCar();
-//var_dump($object);
+
+/*$car = new Car(1);
+$object = $car->getCar();
+//var_dump($object);*/
