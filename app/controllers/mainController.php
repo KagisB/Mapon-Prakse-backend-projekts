@@ -6,6 +6,7 @@
 error_reporting(E_ALL ^ E_WARNING);
 use App\controllers\CarController;
 use App\controllers\RouteController;
+use App\models\Route;
 //use App\models\Route;
 require_once "../../vendor/autoload.php";
 $caction = $_GET["carAction"];
@@ -55,8 +56,8 @@ else{
 //echo $carId;
 switch ($raction) {
     case "infoRoute":
-        $route = new RouteController();
-        echo $route->infoRoute();
+        $route = new Route();
+        $route->getRoutes();
         break;
     case "infoRouteCar":
         $route = new RouteController();
@@ -67,7 +68,7 @@ switch ($raction) {
         echo $route->infoRouteDates($from,$till);
         break;
     case "infoRoutesCarDate":
-        $route = new RouteController();
-        echo $route->infoRouteCarDates($from,$till,$carId);
+        $route = new Route();
+        $route->getRoutesCarTime($from,$till,$carId);
         break;
 }

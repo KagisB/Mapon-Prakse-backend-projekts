@@ -35,7 +35,7 @@ class RouteController{
         $unit = $object->data->units[0];
         //echo $object->data->units[1]->unit_id;
         $routeStops = $unit->routes;
-    $jobject = json_encode($routeStops);
+        $jobject = json_encode($routeStops);
         return $jobject;
     }
 //Vai ir jēga no šīs funkcijas? Kur tikai laiku izvēlās, un tad atlasa visus maršrutus visām mašīnām tajā laikā?

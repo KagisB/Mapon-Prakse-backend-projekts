@@ -24,6 +24,10 @@ function authHTML(){
         header('Location: ../views/login.php');
         exit();
     }
+    /*elseif($_SESSION['userlogin']!=FALSE){
+        header('Location: ../views/mapRoutes.php');
+        exit();
+    }*/
 }
 ///Authenticates user to api, do i need this? Probably not, since i'm only logging
 /// into the mapRoutes page.
@@ -71,27 +75,27 @@ function isValidUser($name, $pass){
         $sql->bind_param('s', $name);
         $sql->execute();
         $result = $sql->get_result();
-        if($result->num_rows > 0){
-            //echo "Ir vairāk par 0 rezultātiem datubāzē";
-            while($row = $result->fetch_assoc()){///Kamēr ir rezultātu rindas(vai vajag, jo vārdam tikai vienam vajadzētu būt
-                //echo "Ir izvēlēta rinda";
-                if($row["name"]==$name){
-                    //echo "Atrod datubāzē vārdu";
-                    //Nestrādā salīdzināšana
-                    //$hash=password_hash($pass,PASSWORD_BCRYPT);
-                    //echo $hash;
-                    //echo $row["password"];
-                    if(password_verify($pass,$row["password"])){
-                        //echo "Parole atrasta/sakrīt";
-                        return true;
-                    }
-                    else{///Te ir jāpārveido, lai turpina meklēt, ja gadījumā ir vairāki vienādi usernames
-                        //pārtrauc ciklu un atgriež uz login screen ar kļūdu "Nepareiza parole"
-                        //header("location:login.php");
-                        //exit;
-                        //echo "Parole nesakrīt";
-                        return false;
-                    }
+        if(!$result->num_rows){
+            return false;
+        }
+        while($row = $result->fetch_assoc()){///Kamēr ir rezultātu rindas(vai vajag, jo vārdam tikai vienam vajadzētu būt
+            //echo "Ir izvēlēta rinda";
+            if($row["name"]==$name){
+                //echo "Atrod datubāzē vārdu";
+                //Nestrādā salīdzināšana
+                //$hash=password_hash($pass,PASSWORD_BCRYPT);
+                //echo $hash;
+                //echo $row["password"];
+                if(password_verify($pass,$row["password"])){
+                    //echo "Parole atrasta/sakrīt";
+                    return true;
+                }
+                else{///Te ir jāpārveido, lai turpina meklēt, ja gadījumā ir vairāki vienādi usernames
+                    //pārtrauc ciklu un atgriež uz login screen ar kļūdu "Nepareiza parole"
+                    //header("location:login.php");
+                    //exit;
+                    //echo "Parole nesakrīt";
+                    return false;
                 }
             }
         }

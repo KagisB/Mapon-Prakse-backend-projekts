@@ -8,8 +8,6 @@
 <h3>Map</h3>
 <?php
 //google maps api key :AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w
-//Don't know, where exactly to put logout function, or how to put it in a place i can easily access it
-//without making new connections
 //Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
 //ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
 require '../controllers/LoginController.php';
@@ -22,47 +20,38 @@ authHTML();
 
     </select>
     <label for="dateFrom">Choose start date</label>
-    <input type="datetime-local" id="dateFrom" name="dateFrom">
+    <input type="datetime-local" id="dateFrom" name="dateFrom"><!--- Te gan jau būtu labi ielikt default start un end dates?--->
     <label for="dateTill">Choose end date</label>
     <input type="datetime-local" id="dateTill" name="dateTill" min="" max="">
 </form>
-<!--
-<label for="press_me">Press me</label>
-<input type="button" id="press_me">
 
-<label for="reset">Reset</label>
-<input type="button" id="reset">
----->
 <label for="filter">Filter data</label>
 <input type="button" id="filter">
 <label for="test">Test polyline</label>
 <input type="button" id="test">
+
 <!---- šeit ir atsevišķš div, kurā glabāsies info par maršrutiem. Varbūt labāk gan tos attēlot kā info windows----->
 <div id="Route_info"></div>
 
 <div id="map" style="width:100%;height:750px;"></div>
 <script>
+
     let map;
     let poly;
     window.onload = function() {
         pageLoad();
     };
 
-    //document.getElementById("press_me").addEventListener("click",initMaps,false);
-    //document.getElementById("press_me").addEventListener("click",initMap,false);
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
-    //document.getElementById("reset").addEventListener("click",initMap,false);
     document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
-    //document.getElementById("press_me").addEventListener("click",initMaps,false);
-    //document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
-    //document.getElementById("reset").addEventListener("click",initMap,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php.
     document.getElementById("filter").addEventListener("click",filter,false);
-    //document.getElementById("test").addEventListener("click",getSelectValues(),false);
+
     function sendLogOut(){
         document.getElementById("logoutForm").submit();
     }
+
     //Šī funkcija uzliek mašīnu sarakstu pie izvēles opcijām, kā arī uzliek pašreizējo laiku kā max value
     //dateTill izvēlei
     function pageLoad(){
@@ -87,6 +76,7 @@ authHTML();
         }
         xmlhttp.open("GET", "../controllers/mainController.php?carAction=carList", true);
         xmlhttp.send();
+
         let currentDate = new Date() ;
         let today = returnDateString(currentDate);
         //console.log(today);
@@ -152,7 +142,6 @@ authHTML();
         if(sec<10){
             sec = '0'+sec;
         }
-        //console.log(y+" "+m+" "+d+" "+h+" "+min);
         let today=y+'-'+m+'-'+d+'T'+h+':'+min+':'+sec;
         return today;
     }
@@ -164,7 +153,6 @@ authHTML();
                 selected.push(option.value);
             }
         }
-        //console.log(selected);
         return selected;
     }
     //Main function, that collects user inputs from the form, and then uses them to request data from the server
@@ -175,23 +163,22 @@ authHTML();
             alert("Choose a start date");
         }
         else{
-            //console.log(document.getElementById('dateFrom').value);
             from = document.getElementById('dateFrom').value;
         }
         if(document.getElementById('dateTill').value == ""){
             alert("Choose a end date");
         }
+
         else{
-            //console.log(document.getElementById('dateTill').value);
             let compareDate = new Date(from);
             let newDate = new Date(compareDate.setMonth(compareDate.getMonth()+1));
-            //console.log(newDate);
             let currentDate=new Date();
             if(newDate<currentDate){
                 let today = returnDateString(newDate);
                 document.getElementById("dateTill").max=today;
                 document.getElementById("dateTill").min=from;
             }
+
             else{
                 let currentDate = new Date() ;
                 let today = returnDateString(currentDate);
@@ -202,18 +189,9 @@ authHTML();
         }
         let selectedCars = document.getElementById('cars');
         //šeit pašlaik automātiski izvēlās pirmo mašīnu sarakstā, bet gan jau jāpārveido atsevišķi, lai checo, vai
-        //vispār ir izvēlēts kaut kas, ja nav, tad izsauc citu funkciju, kurā nevajag mašīnas id
-        //if(carIds[0] == null){
-        //    alert("Choose a car");
-        //}
-        //else{
-            //carId = selectedCars.options[selectedCars.selectedIndex].value;
         carId = getSelectValues(selectedCars.options);
-        //let carId2 = getSelectValues(selectedCars.options);
-        //console.log(carId2);
-        //console.log(getSelectValues(selectedCars.options));
-        //}
-        console.log(from + "," + till + "," + carId);
+
+        //console.log(from + "," + till + "," + carId);
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -224,18 +202,20 @@ authHTML();
                     //alert(err.message);
                     alert("There was an error processing data. Try again or switch around filter options");
                 } finally {
+
                     let object = JSON.parse(xmlhttp.responseText);
-                    //console.log(object);
-                    //console.log(xmlhttp.responseText);
+
                     if (object == null) {
                         alert("An error was made in data choice. Make sure the start and end dates are logical!");
                     }
+
                     let position = {lat: object.units[0].routes[0].start.lat, lng: object.units[0].routes[0].start.lng};
                     map = new google.maps.Map(document.getElementById("map"), {
                         zoom: 8,
                         center: position,
 
                     });
+
                     if(object.units[0].unit_id==carId[0]){
                         let marker = new google.maps.Marker({
                             position: position,
@@ -243,17 +223,14 @@ authHTML();
                         });
                     }
 
-                    //console.log(object);
-                    //console.log(object.units.length);
-                    //console.log(object.units[0]);
                     for(let i =0; i<object.units.length;i++){
-                    //object.forEach((unit)=>{
                         let unit = object.units[i];
-                        //console.log(unit);
                         for(let j=0;j<unit.routes.length;j++){
-                        //unit.forEach((route) => {
+
                             let stops = unit.routes[j];
+
                             let positionAdditional = {lat: stops.start.lat, lng: stops.start.lng};
+
                             marker = new google.maps.Marker({
                                 position: positionAdditional,
                                 map: map,
@@ -263,7 +240,6 @@ authHTML();
                             //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
                             //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
                             if (stops.hasOwnProperty('end')) {
-                                //console.log("ir end");
                                 infoContent = infoContent +
                                     "<p>Stop time: " + stops.end.time + "</p>" +
                                     "<p>Stop address: " + stops.end.address + "</p>";
@@ -307,11 +283,9 @@ authHTML();
                                     //marker.setLabel("P");
                                 });
                             }
-                            //if (stops.type == "route" ) {
                             //Today found out that routes also have a possibility to not have an end, throwing
                             //an undefined value to polyline. So added another check, if the route has an end.
                             if (stops.type == "route" && stops.hasOwnProperty('end')) {
-                                //console.log("Ir route");
                                 let path = google.maps.geometry.encoding.decodePath(stops.polyline);
                                 //console.log(path);
                                 let lineSymbol = {
@@ -332,22 +306,7 @@ authHTML();
                             }
                             //});
                         }
-                }//);
-                    //}
-                    /*data.forEach((unit) => {
-                        /*let position = {lat: object[0].start.lat, lng: object[0].start.lng};
-                        map = new google.maps.Map(document.getElementById("map"), {
-                            zoom: 8,
-                            center: position,
-                        });
-                        let marker = new google.maps.Marker({
-                            position: position,
-                            map: map,
-                        });
-
-                    });*/
-
-
+                }
                 }
             }
         }
@@ -362,23 +321,14 @@ authHTML();
                 Pārveido atsūtīto json objektu, lai var iet cauri,
                 Katru objekta koordināti attēlot kā pieturu google maps
                 */
-                //alert("Tiek funkcijā");
                 let xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function() {
-                    //alert("Tiek reqest funkcijā");
                     if (this.readyState == 4 && this.status == 200) {
-                        //alert("Tiek reqest funkcijā iekšā");
-                        //console.log(xmlhttp.responseText);
-                        //console.log(JSON.parse(xmlhttp.responseText));
+
                         let object = JSON.parse(xmlhttp.responseText);
-                        //let object=xmlhttp.responseText;
-                        //console.log(object.length);
-                        //let route=JSON.parse(object);
-                        //console.log();
-                        //console.log(object);
-                        //let object = xmlhttp.responseText;
-                        //alert(object);
+
                         let position = {lat: object[0].start.lat, lng: object[0].start.lng};
+
                         map = new google.maps.Map(document.getElementById("map"), {
                             zoom: 8,
                             center: position,
@@ -387,22 +337,18 @@ authHTML();
                             position: position,
                             map: map,
                         });
-                        //);
-                        //console.log(object[0]);
-                        //console.log(object[1]);
+
                         object.forEach((route)=>{
                             let stops = route;
-                            //console.log(stops);
-                            //console.log(stops.start);
-                            //console.log(stops.start.lat);
-                            //console.log(stops.end);
                             let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
                             marker = new google.maps.Marker({
                                 position: positionAdditional,
                                 map: map,
                             });
+
                             //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
                             //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
+
                             if(stops.hasOwnProperty('end')){
                                 //console.log("ir end");
                                 positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
@@ -411,13 +357,14 @@ authHTML();
                                     map: map,
                                 });
                             }
-                            //console.log(stops.type);
+
                             //Nevaru pārbaudīt pašlaik, jo ir problēmas ar random encoded polyline, kura met
                             //unrecognizable simbolus, kas parādās tikai parsējot cauri ar json.parse funkciju,
                             //citādi nerādās šie simboli, bet tādēļ uzreiz visa funkcija nestrādā
                             //Bet, teorētiski, ja route tips ir route, nevis stop, tad vajadzētu decodot doto polyline path
                             // un tālāk apstrādāt to.
-                            if(stops.type=="route"){
+
+                            if(stops.type=="route" && stops.hasOwnProperty('end')){
                                 console.log("Ir route");
                                 let path = google.maps.geometry.encoding.decodePath(stops.polyline);
                                 //console.log(path);
@@ -437,24 +384,9 @@ authHTML();
         xmlhttp.send();
         //alert("Tiek funkcijas beigās");
     }
-    // Initialize and add the map
-    //Šis ir ņemts no oficālā documentation google maps API, kā piemērs, kurš strādā.
-    /*function initMap() {
-        // The location of Uluru
-        const uluru = { lat: -25.344, lng: 131.031 };
-        // The map, centered at Uluru
-        map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 4,
-            center: uluru,
-        });
-        // The marker, positioned at Uluru
-        const marker = new google.maps.Marker({
-            position: uluru,
-            map: map
-        });
-    }*/
+
     //Testa funkcija, lai saprastu, kā strādā polylines, un vai problēma ir ar pašu kodu, vai ar ievaddatiem
-    function testpoly(){
+    /*function testpoly(){
         let path = google.maps.geometry.encoding.decodePath(polyline);
         let drivingPath = new google.maps.Polyline({
             path: path,
@@ -464,7 +396,7 @@ authHTML();
             strokeWeight: 2,
             map : map,
         });
-    }
+    }*/
     window.initMap = initMap;
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w&libraries=geometry&callback=initMap"></script>
