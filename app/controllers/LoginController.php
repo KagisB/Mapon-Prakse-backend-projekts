@@ -29,34 +29,16 @@ function authHTML(){
         exit();
     }*/
 }
-///Authenticates user to api, do i need this? Probably not, since i'm only logging
-/// into the mapRoutes page.
-/*function authMap(){
-    $user = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
-    $pass = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '';
-}*/
 //$name = "johny";
 //$pass = "johndoe";
 function isValidUser($name, $pass){
-    //echo "isValidUser activate";
     ///Here goes username/password validation through database
-    /// I need to switch password encryption methods so they are the same and
-    /// make the same hash for equal passwords
     if(str_contains($name,"aaa")){///izdomāt pareizāk
         /*//atgriež uz login lapu ar kļūdu "Nepareizi ievadīts vārds"header("Location:login.php");
-        //    exit;
-        ?>
-        <form id="login1" action="../views/login.php" method="post">
-            <input type="hidden" name="errorCode" value="WUsername">
-        </form>
-        <script type="text/javascript">
-            document.getElementById('login1').submit();
-        </script>
-        <?php*/
+        */
         return false;
     }
     else{
-        //echo "Meklē datubāzē lietotāju";
         //iegūst sarakstu ar lietotājiem no datubāzes
         $servername = "127.0.0.1";//??
         $username = "admin";
@@ -66,12 +48,9 @@ function isValidUser($name, $pass){
         $conn = new mysqli($servername,$username,$password,$dbname,$port);
         if($conn->connect_error){
             die("Connection failed: " . $conn->connect_error);
-            //te jāpievieno reroute uz login page, ka database ir unavailable/login ir unavailable pašlaik
         }
-        //echo " Savienojums ir izveidots";
         //Atrod no datubāzes lietotāju ar tādu pašu vārdu
-        //echo $username;
-        $sql = $conn->prepare('SELECT * FROM Users WHERE name = ?');//atgriezt tikai lietotāju, kur sakrīt ar username
+        $sql = $conn->prepare('SELECT name,password FROM Users WHERE name = ? LIMIT 1');//atgriezt tikai lietotāju, kur sakrīt ar username
         $sql->bind_param('s', $name);
         $sql->execute();
         $result = $sql->get_result();
@@ -105,7 +84,7 @@ function isValidUser($name, $pass){
 function logOut(){
     //session_start();
     session_destroy();
-    header('Location: ../../homepage.php');
+    header('Location: ../../public/homepage.php');
     exit();
 }
 error_reporting(E_ALL ^ E_WARNING);

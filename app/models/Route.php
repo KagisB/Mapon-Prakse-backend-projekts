@@ -73,7 +73,8 @@ class Route
         return $object;
     }
 
-    public function getRoutesCarTime($from, $till, $carId): void
+    //public function getRoutesCarTime($from, $till, $carId): void
+    public function getRoutesCarTime($from, $till, $carId): string
     {
         //https://mapon.com/api/v1/unit/list.json
         $date = $from;
@@ -97,16 +98,15 @@ class Route
         }
         $url = $url . "include[]=polyline";
         //echo $url;
-        //echo $url;
-        //parse_str($carId, $carIds);
-        //echo http_build_query($carIds);
         $jobject = file_get_contents($url);
         //echo $jobject;
-        $object = json_decode($jobject);
+         //echo $jobject;
+        return $jobject;
+        /*$object = json_decode($jobject);
         $data=$object->data;
         $jsobject = json_encode($data);
         //return $jsobject;
-        echo $jsobject;
+        echo $jsobject;*/
         //return $object;
     }
 }
