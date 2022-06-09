@@ -40,17 +40,19 @@ if($_GET["carId"]!=null){
 else{
     $carId=0;
 }
-//$raction ="infoRoutesCarDate";
+/*$raction ="infoRoutesCarDate";
 //$carId=66466;
-//$from = new dateTime("2022-05-29T14:23");
-//$till =new dateTime("2022-06-08T14:23");
-//$carId=66466;
+$from = new dateTime("2022-05-29T14:23");
+$till =new dateTime("2022-06-09T14:23");
+$carId=66466;*/
 //$from->modify("-3 days");
 //$from =;
 switch ($raction) {
     case "infoRoute":
-        $route = new Route();
-        $route->getRoutes();
+        $route = new RouteController();
+        $jsstring = $route->infoRoute();
+        //header('Content-Type: application/json; charset=utf-8');
+        echo $jsstring;
         break;
     case "infoRouteCar":
         $route = new RouteController();
@@ -61,9 +63,8 @@ switch ($raction) {
         echo $route->infoRouteDates($from,$till);
         break;
     case "infoRoutesCarDate":
-        $route = new Route();
-        //echo $from.$till.$carId;
-        $jsstring = $route->getRoutesCarTime($from,$till,$carId);
+        $route = new RouteController();
+        $jsstring = $route->infoRouteCarDates($from,$till,$carId);
         //header('Content-Type: application/json; charset=utf-8');
         echo $jsstring;
         break;

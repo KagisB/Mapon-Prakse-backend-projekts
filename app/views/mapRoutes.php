@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html>
-
+<head>
+    <meta charset="UTF-8">
+</head>
 <h1>Main page having logged in</h1>
 <button id="logoutButton">Log out</button>
 <form id="logoutForm" action="../controllers/LoginController.php" method="post">
     <input type="hidden" id="logout" name="logout" value="logout">
 </form>
 <h3>Map</h3>
+<script>
 <?php
 //google maps api key :AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w
 //Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
 //ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
 require '../controllers/LoginController.php';
+require_once "../../vendor/autoload.php";
 // HTML authentication
 authHTML();
 ?>
+</script>
 <form id="routeSelect" action="../controllers/RouteController.php" method="post">
     <label for="cars">Select a car</label>
     <select id="cars" name="cars" multiple><!--- Šeit tiek liktas iespējamās opcijas kā pieejamas mašīnas no api-->
@@ -32,6 +37,8 @@ authHTML();
 <label for="test">Test polyline</label>
 <input type="button" id="test">
 -->
+<label for="test">Test filter</label>
+<input type="button" id="test">
 <!---- šeit ir atsevišķš div, kurā glabāsies info par maršrutiem. Varbūt labāk gan tos attēlot kā info windows----->
 <div id="Route_info"></div>
 
@@ -49,7 +56,7 @@ authHTML();
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php.
     document.getElementById("filter").addEventListener("click",filter,false);
-
+    document.getElementById("test").addEventListener("click",testFilter,false);
     function sendLogOut(){
         document.getElementById("logoutForm").submit();
     }
@@ -185,13 +192,13 @@ authHTML();
     }
     //Function changes the JSON file sent from API to be able to be used by other functions to display
     //data on the google maps map
-    function changeJson(object){
+    /*function changeJson(object){
         if (object == null) {
             alert("An error was made in data choice. Make sure the start and end dates are logical!");
         }
         let data = object.data;
         return data;
-    }
+    }*/
     //Displays markers and polylines on the map from given data object
     function displayOnMap(unit, j){
         //console.log("Putting something on the map");
@@ -211,14 +218,11 @@ authHTML();
             infoContent = infoContent +
                 "<p>Stop time: " + stops.end.time + "</p>" +
                 "<p>Stop address: " + stops.end.address + "</p>";
-            let infowindow = new google.maps.InfoWindow({
+            /*let infowindow = new google.maps.InfoWindow({
                 content: infoContent,
-            });
+            });*/
             //Puts the infoWindow on the last stop, instead of individual stops
             //Is it even possible to put it on each start marker?
-            //Without saving all markers in a seperate array or something
-            //Jo izveido katram marker click event, taču, kad notiek šis click, tad jau marker mainīgajam
-            //ir cita pozīcija, usually pati pēdējā, kas ielikta kartē.
             marker.addListener("click", () => {
                 //console.log(positionAdditional);
                 /*infowindow.open({
@@ -236,9 +240,9 @@ authHTML();
                 map: map,
             });
         } else {
-            let infowindow = new google.maps.InfoWindow({
+            /*let infowindow = new google.maps.InfoWindow({
                 content: infoContent,
-            });
+            });*/
             marker.addListener("click", () => {
                 //console.log(positionAdditional);
                 /*infowindow.open({
@@ -289,6 +293,42 @@ authHTML();
             });
         }
     }
+    //Paņemts no interneta ar mērķi mēģināt attīrīt response no dīvainajiem/special characters
+    /*function cleanString(response){
+        let output = "";
+        for (let i = 0; i < response.length; i++) {
+            if (response.charCodeAt(i) <= 127) {
+                output += response.charAt(i);
+            }
+        }
+        return output;
+    }*/
+    //Test function to see, if a different filter implementation works better
+    function testFilter(){
+        if(!validateData()){
+            alert ("Data wasn't correct");
+            return;
+        }
+        else{
+            let from = document.getElementById('dateFrom').value,
+                till = document.getElementById('dateTill').value,
+                carId=getSelectValues(document.getElementById('cars').options);
+            console.log(from+" "+till+" "+carId);
+        }
+        let object = loadJSON();
+        /*fetch("https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from=2022-05-29T11:16:29Z&till=2022-06-09T11:16:29Z&unit_id=66466&include[]=polyline")
+            .then(response=> response.json())
+            .then(object => console.log(object));*/
+        console.log(object);
+    }
+    ///Currently returns a promise, whose result is the thing i want to get, don't know how to get it
+   function loadJSON(){
+        let response = fetch("https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from=2022-05-29T11:16:29Z&till=2022-06-09T11:16:29Z&unit_id=66466&include[]=polyline")
+            .then(response => {return response.json()});
+        let object =response;
+        console.log(object);
+        return object;
+    }
     //Main function, that collects user inputs from the form, and then uses them to request data from the server
     //Then processes that received data and displays it on a map
     ///Tagad tā vietā, lai uzmestu error par to, ka ir nepareizi simboli, vienkārši nav
@@ -303,31 +343,37 @@ authHTML();
             let from = document.getElementById('dateFrom').value,
             till = document.getElementById('dateTill').value,
             carId=getSelectValues(document.getElementById('cars').options);
-            //console.log(from+" "+till+" "+carId);
+            console.log(from+" "+till+" "+carId);
             /*
-            1)xmlhttp request, šoreiz kā atbildi saņem neapstrādātu json failu
-            2)Šo failu padot funkcijai, kas to apstrādā un pārveido, lai var izmantot atkal
-            3)Izsaukt funkciju, kura uzliek uz kartes datus
+            1)xmlhttp request, kā atbildi saņem json string
+            2)Izsaukt funkciju, kura uzliek uz kartes datus
              */
+            ///Mēģināt šo pašu izdarīt ar fetch(), lai gan tas tāpat varētu nepalīdzēt,
+            ///Jo pats fails/response, ko saņem no api, jau satur tos simbolus, vismaz rādot no
+            ///Route.php un mainController.php
             let xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     try {
-                        //let object = JSON.parse(xmlhttp.responseText);
-                        let object = xmlhttp.response;
+                        //console.log(xmlhttp.responseText);
+                        let object = JSON.parse(xmlhttp.responseText);
+                        //let object = xmlhttp.responseText;
+                        //let object = xmlhttp.response;
                     } catch (err) {
                         //alert(err.message);
                         alert("There was an error processing data. Try again or switch around filter options");
                     } finally {
-                        //let object = JSON.parse(xmlhttp.responseText);
+                        let object = JSON.parse(xmlhttp.responseText);
                         //console.log(from+" "+till+" "+carId);
                         //console.log(xmlhttp.response);
-                        let object = xmlhttp.response;
+                        //console.log(xmlhttp.responseText);
+                        //let object = xmlhttp.response;
+                        //let object = xmlhttp.responseText;
                         //console.log(object);
-                        let dataObject = changeJson(object);
-                        displayStartOnMap(dataObject,carId[0]);
-                        for(let i =0; i<dataObject.units.length;i++){
-                            let unit = dataObject.units[i];
+                        //let dataObject = changeJson(object);
+                        displayStartOnMap(object,carId[0]);
+                        for(let i =0; i<object.units.length;i++){
+                            let unit = object.units[i];
                             for(let j=0;j<unit.routes.length;j++){
                                 displayOnMap(unit,j);
                             }
@@ -336,7 +382,7 @@ authHTML();
                 }
             }
             xmlhttp.open("GET", "../controllers/mainController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
-            xmlhttp.responseType = "json";
+            //xmlhttp.responseType = "json";
             xmlhttp.send();
         }
         //console.log(from + "," + till + "," + carId);
@@ -393,6 +439,7 @@ authHTML();
                 Pārveido atsūtīto json objektu, lai var iet cauri,
                 Katru objekta koordināti attēlot kā pieturu google maps
                 */
+            console.log("hello?");
                 let xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {
