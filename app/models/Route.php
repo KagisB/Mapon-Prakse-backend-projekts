@@ -7,13 +7,11 @@ class Route
 {
     public string $base_url ="https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from=";
 
-    public function _construct(): void
-    {
-    }
+    public function _construct(): void{
 
+    }
     //Funkcija, kas paņem pēdējās nedēļas datus par maršrutiem, atkarībā no tā, kad aktivizē šo funkciju.
-    public function getRoutes(): object
-    {
+    public function getRoutes(): object{
         //https://mapon.com/api/v1/unit/list.json
         $date = new DateTime("now");
         $date->modify("-1 week");
@@ -36,8 +34,7 @@ class Route
     }
     //Funckija, kura izmanto iedotus laikus. Varbūt vēl jāpievieno mašīnu/unit id, lai var atlasīt konkrētu mašīnu maršrutus
     //Bet to varbūt kā vēl atsevišķu funkciju
-    public function getRoutesTime(dateTime $from, dateTime $till): object
-    {
+    public function getRoutesTime(dateTime $from, dateTime $till): object{
         //https://mapon.com/api/v1/unit/list.json
         $date = $from;
         $time = $date->format(DATE_ATOM);
@@ -55,8 +52,7 @@ class Route
         return $object;
     }
 
-    public function getRoutesCar(int $carId): object
-    {
+    public function getRoutesCar(int $carId): object{
         //https://mapon.com/api/v1/unit/list.json
         $date = new DateTime("now");
         $date->modify("-1 week");
@@ -73,8 +69,7 @@ class Route
     }
 
     //public function getRoutesCarTime($from, $till, $carId): void
-    public function getRoutesCarTime($from, $till, $carId): object
-    {
+    public function getRoutesCarTime($from, $till, $carId): object{
         //https://mapon.com/api/v1/unit/list.json
         $date = $from;
         $time = $date->format(DATE_ATOM);

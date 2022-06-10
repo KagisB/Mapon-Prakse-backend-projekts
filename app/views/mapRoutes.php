@@ -192,13 +192,13 @@ authHTML();
     }
     //Function changes the JSON file sent from API to be able to be used by other functions to display
     //data on the google maps map
-    /*function changeJson(object){
+    function changeJson(object){
         if (object == null) {
             alert("An error was made in data choice. Make sure the start and end dates are logical!");
         }
         let data = object.data;
         return data;
-    }*/
+    }
     //Displays markers and polylines on the map from given data object
     function displayOnMap(unit, j){
         //console.log("Putting something on the map");
@@ -293,17 +293,8 @@ authHTML();
             });
         }
     }
-    //Paņemts no interneta ar mērķi mēģināt attīrīt response no dīvainajiem/special characters
-    /*function cleanString(response){
-        let output = "";
-        for (let i = 0; i < response.length; i++) {
-            if (response.charCodeAt(i) <= 127) {
-                output += response.charAt(i);
-            }
-        }
-        return output;
-    }*/
     //Test function to see, if a different filter implementation works better
+    //Update : it works better in the sense that it doesn't throw errors for unrecognized symbols in JSON response
     function testFilter(){
         if(!validateData()){
             alert ("Data wasn't correct");
@@ -313,27 +304,44 @@ authHTML();
             let from = document.getElementById('dateFrom').value,
                 till = document.getElementById('dateTill').value,
                 carId=getSelectValues(document.getElementById('cars').options);
-            console.log(from+" "+till+" "+carId);
+            //console.log(from+" "+till+" "+carId);
+            loadJSON(from,till,carId);
         }
-        let object = loadJSON();
-        /*fetch("https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from=2022-05-29T11:16:29Z&till=2022-06-09T11:16:29Z&unit_id=66466&include[]=polyline")
-            .then(response=> response.json())
-            .then(object => console.log(object));*/
-        console.log(object);
     }
-    ///Currently returns a promise, whose result is the thing i want to get, don't know how to get it
-   function loadJSON(){
-        let response = fetch("https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from=2022-05-29T11:16:29Z&till=2022-06-09T11:16:29Z&unit_id=66466&include[]=polyline")
-            .then(response => {return response.json()});
-        let object =response;
-        console.log(object);
-        return object;
+    //prepares the url needed to request data from Mapon API
+    function prepareURL(from,till,carId){
+        from = from+":00Z&till=";
+        till = till+":00Z&";
+        let url = "https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from="+from+till;
+        for(let i = 0;i<carId.length;i++){
+            url = url+"unit_id["+i+"]="+carId[i]+"&";
+        }
+        url = url+"include[]=polyline";
+        return url;
+    }
+    ///Function uses given data and generates a response from Mapon API, which it then displays on a map
+    async function loadJSON(from, till, carId){
+       if(!validateData()){
+           alert ("Data wasn't correct");
+           return;
+       }
+       else {
+           let response = await fetch(prepareURL(from,till,carId));
+           let object = await response.json();
+           //console.log(object);
+           let data = changeJson(object);
+           //console.log(data);
+           displayStartOnMap(data,carId[0]);
+           for(let i =0; i<data.units.length;i++){
+               let unit = data.units[i];
+               for(let j=0;j<unit.routes.length;j++){
+                   displayOnMap(unit,j);
+               }
+           }
+       }
     }
     //Main function, that collects user inputs from the form, and then uses them to request data from the server
     //Then processes that received data and displays it on a map
-    ///Tagad tā vietā, lai uzmestu error par to, ka ir nepareizi simboli, vienkārši nav
-    ///response text, ja parādījušies šie simboli, bet tam nevajadzētu būt iespējamam,
-    ///ja es tīri pieprasu datus no API un neko nemainot apstrādāju. Kā var rasties šāda problēma?
     function filter(){
         if(!validateData()){
             alert ("Data wasn't correct");

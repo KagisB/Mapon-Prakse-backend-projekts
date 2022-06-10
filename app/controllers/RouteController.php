@@ -18,8 +18,7 @@ class RouteController{
     public function _construct() : void{
 
     }
-    public function infoRoute(): string
-    {
+    public function infoRoute(): string{
         $route = new Route();
         $object = $route->getRoutes();
         $unit = $object->data->units[0];
@@ -28,8 +27,7 @@ class RouteController{
         $jobject = json_encode($routeStops);
         return $jobject;
     }
-    public function infoRouteCar(int $carId): string
-    {
+    public function infoRouteCar(int $carId): string{
         $route = new Route();
         $object = $route->getRoutesCar($carId);
         $unit = $object->data->units[0];
@@ -41,8 +39,7 @@ class RouteController{
 //Vai ir jēga no šīs funkcijas? Kur tikai laiku izvēlās, un tad atlasa visus maršrutus visām mašīnām tajā laikā?
 //Vai labāk tomēr būtu šajā funkcijā arī obligāti prasīt mašīnas id, lai var tikai tai konkrētajai mašīnai/mašīnām
 //atlasīt maršrutus?
-    public function infoRouteDates(datetime $from, datetime $till): string
-    {
+    public function infoRouteDates(datetime $from, datetime $till): string{
         $route = new Route();
         $object = $route->getRoutesTime($from,$till);
         $unit = $object->data->units[0];//Ja vajag šo funkciju, tad šeit vajadzēs nomainīt no [0] uz kaut ko citu
@@ -52,8 +49,7 @@ class RouteController{
         $jobject = json_encode($routeStops);
         return $jobject;
     }
-    public function infoRouteCarDates($from,$till,$carId): string
-    {
+    public function infoRouteCarDates($from,$till,$carId): string{
         $route = new Route();
         $object = $route->getRoutesCarTime($from,$till,$carId);
         //$unit = $object->data->units[0];
