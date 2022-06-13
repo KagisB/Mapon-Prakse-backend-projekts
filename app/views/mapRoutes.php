@@ -202,6 +202,7 @@ authHTML();
     //Displays markers and polylines on the map from given data object
     function displayOnMap(unit, j){
         //console.log("Putting something on the map");
+        document.getElementById("Route_info").innerHTML = "";
         let stops = unit.routes[j];
 
         let positionAdditional = {lat: stops.start.lat, lng: stops.start.lng};
@@ -293,6 +294,18 @@ authHTML();
             });
         }
     }
+    function displayInitStartOnMap(object){
+        let position = {lat: object[0].start.lat, lng: object[0].start.lng};
+
+        map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 8,
+            center: position,
+        });
+        let marker = new google.maps.Marker({
+            position: position,
+            map: map,
+        });
+    }
     //Test function to see, if a different filter implementation works better
     //Update : it works better in the sense that it doesn't throw errors for unrecognized symbols in JSON response
     function testFilter(){
@@ -305,19 +318,37 @@ authHTML();
                 till = document.getElementById('dateTill').value,
                 carId=getSelectValues(document.getElementById('cars').options);
             //console.log(from+" "+till+" "+carId);
+            //prepareURL(from,till,carId);
             loadJSON(from,till,carId);
         }
     }
     //prepares the url needed to request data from Mapon API
-    function prepareURL(from,till,carId){
+    function prepareURL(key,from,till,carId){
         from = from+":00Z&till=";
         till = till+":00Z&";
-        let url = "https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from="+from+till;
+        /*let key = getKeyAPI();
+        console.log(key);*/
+        let url = "https://mapon.com/api/v1/route/list.json?key="+key+"&from="+from+till;
         for(let i = 0;i<carId.length;i++){
             url = url+"unit_id["+i+"]="+carId[i]+"&";
         }
         url = url+"include[]=polyline";
         return url;
+    }
+    function getKeyAPI(){
+        let key;
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(xmlhttp.responseText);
+                key = xmlhttp.responseText;
+                console.log(key);
+                return key;
+            }
+        }
+        xmlhttp.open("GET", "../controllers/mainController.php?routeAction=getKey", true);
+        xmlhttp.send();
+        //return key;
     }
     ///Function uses given data and generates a response from Mapon API, which it then displays on a map
     async function loadJSON(from, till, carId){
@@ -326,8 +357,12 @@ authHTML();
            return;
        }
        else {
-           let response = await fetch(prepareURL(from,till,carId));
-           let object = await response.json();
+           let response = await fetch("../controllers/mainController.php?routeAction=getKey");
+           let key = await response.text();
+           //console.log(key);
+           //console.log(prepareURL(key,from,till,carId));
+           let response2 = await fetch(prepareURL(key,from,till,carId));
+           let object = await response2.json();
            //console.log(object);
            let data = changeJson(object);
            //console.log(data);
@@ -394,51 +429,6 @@ authHTML();
             xmlhttp.send();
         }
         //console.log(from + "," + till + "," + carId);
-
-        /*let xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                //Mistisko simbolu, kas randomly parādās json response, dēļ, izveidoju try/catch, lai paziņotu par kļūdu, ja šie simboli parādās
-                try {
-                    let object = JSON.parse(xmlhttp.responseText);
-                } catch (err) {
-                    //alert(err.message);
-                    alert("There was an error processing data. Try again or switch around filter options");
-                } finally {
-                    //This cleans up route info div whenever a new filter function is called
-                    document.getElementById("Route_info").innerHTML ="";
-                    let object = JSON.parse(xmlhttp.responseText);
-
-                    if (object == null) {
-                        alert("An error was made in data choice. Make sure the start and end dates are logical!");
-                    }
-
-                    let position = {lat: object.units[0].routes[0].start.lat, lng: object.units[0].routes[0].start.lng};
-                    map = new google.maps.Map(document.getElementById("map"), {
-                        zoom: 8,
-                        center: position,
-
-                    });
-
-                    if(object.units[0].unit_id==carId[0]){
-                        let marker = new google.maps.Marker({
-                            position: position,
-                            map: map,
-                        });
-                    }
-
-                    for(let i =0; i<object.units.length;i++){
-                        let unit = object.units[i];
-                        for(let j=0;j<unit.routes.length;j++){
-                            displayOnMap(unit,j);
-                        }
-                    }
-                }
-            }
-        }
-        //console.log("../controllers/RouteController.php?routeAction=infoRouteCarDates&from="+from+"&till="+till+"&carId="+carId)
-        xmlhttp.open("GET", "../controllers/mainController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
-        xmlhttp.send();*/
     }
     //function initMaps(){
         function initMap(){
@@ -447,23 +437,17 @@ authHTML();
                 Pārveido atsūtīto json objektu, lai var iet cauri,
                 Katru objekta koordināti attēlot kā pieturu google maps
                 */
-            console.log("hello?");
+            //console.log("hello?");
                 let xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {
 
                         let object = JSON.parse(xmlhttp.responseText);
+                        displayInitStartOnMap(object);
 
-                        let position = {lat: object[0].start.lat, lng: object[0].start.lng};
-
-                        map = new google.maps.Map(document.getElementById("map"), {
-                            zoom: 8,
-                            center: position,
-                        });
-                        let marker = new google.maps.Marker({
-                            position: position,
-                            map: map,
-                        });
+                        //Ir vispār vajadzība ko vairāk likt? vai sākumā varbūt arī pietiek, ja
+                        //tiek uzlikts tikai sākuma marker pirmajā position, un viss, nekādus routes
+                        //pa taisno uzreiz nerādīt?
 
                         object.forEach((route)=>{
                             let stops = route;

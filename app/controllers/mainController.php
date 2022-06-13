@@ -47,6 +47,7 @@ $till =new dateTime("2022-06-09T14:23");
 $carId=66466;*/
 //$from->modify("-3 days");
 //$from =;
+//$raction = "getKey";
 switch ($raction) {
     case "infoRoute":
         $route = new RouteController();
@@ -67,6 +68,11 @@ switch ($raction) {
         $jsstring = $route->infoRouteCarDates($from,$till,$carId);
         //header('Content-Type: application/json; charset=utf-8');
         echo $jsstring;
+        break;
+    case "getKey":
+        $route = new Route();
+        echo $route->getKey();
+        //return $key;
         break;
 }
 

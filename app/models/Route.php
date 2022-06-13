@@ -5,10 +5,13 @@ use DateTime;
 
 class Route
 {
-    public string $base_url ="https://mapon.com/api/v1/route/list.json?key=5333a9720180356462a0d9615a38f6dfff4581aa&from=";
-
+    public string $base_url ="https://mapon.com/api/v1/route/list.json?key=";
+    private string $key="5333a9720180356462a0d9615a38f6dfff4581aa";
     public function _construct(): void{
 
+    }
+    public function getKey(): string{
+        return $this->key;
     }
     //Funkcija, kas paņem pēdējās nedēļas datus par maršrutiem, atkarībā no tā, kad aktivizē šo funkciju.
     public function getRoutes(): object{
@@ -17,7 +20,7 @@ class Route
         $date->modify("-1 week");
         $time = $date->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);
-        $url = $this->base_url . $time;
+        $url = $this->base_url .$this->key."&from=".$time;
         $date2 = new DateTime("now");
         $time = $date2->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);
@@ -39,7 +42,7 @@ class Route
         $date = $from;
         $time = $date->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);
-        $url = $this->base_url . $time;
+        $url = $this->base_url .$this->key."&from=". $time;
         $date2 = $till;
         $time = $date2->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);
@@ -58,7 +61,7 @@ class Route
         $date->modify("-1 week");
         $time = $date->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);
-        $url = $this->base_url . $time;
+        $url = $this->base_url .$this->key."&from=". $time;
         $date2 = new DateTime("now");
         $time = $date2->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);
@@ -74,7 +77,7 @@ class Route
         $date = $from;
         $time = $date->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);
-        $url = $this->base_url. $time;
+        $url = $this->base_url.$this->key."&from=". $time;
         $date2 = $till;
         $time = $date2->format(DATE_ATOM);
         $time = str_replace("+00:00", "Z", $time);

@@ -82,10 +82,14 @@ function isValidUser($name, $pass){
     }
 }
 function logOut(){
+    require_once '../../route.php';
     //session_start();
     session_destroy();
-    header('Location: ../../public/homepage.php');
-    exit();
+    $uri = $_SERVER["REQUEST_URI"];
+    $router = new Router();
+    $router->dispatchRoute($uri);
+    /*header('Location: ../../public/homepage.php');
+    exit();*/
 }
 error_reporting(E_ALL ^ E_WARNING);
 if($_POST['logout']=="logout"){
