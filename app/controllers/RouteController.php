@@ -1,9 +1,6 @@
 <?php
-//Funkcijas, kas:
-//  Attēlo karti ar polylines un stops
-//  Attēlo informāciju par konkrēto maršrutu mašīnai
-//  Papildus info automašīnai par maršrutiem
-//Switch statement, kur, atkarībā no darbības, izpilda noteiktu funkciju un aizsūta uz noteikto mājaslapu
+
+//Functions, that collect data from the API, using Route class, and then sends that data to the webpage
 namespace App\controllers;
 use App\models\Route;
 //use DateTime;
@@ -20,7 +17,7 @@ class RouteController{
     }
     public function infoRoute(): string{
         $route = new Route();
-        $object = $route->getRoutes();
+        $object = $route->printRoutes();
         $unit = $object->data->units[0];
         //echo $object->data->units[1]->unit_id;
         $routeStops = $unit->routes;
@@ -29,7 +26,7 @@ class RouteController{
     }
     public function infoRouteCar(int $carId): string{
         $route = new Route();
-        $object = $route->getRoutesCar($carId);
+        $object = $route->printRoutesCar($carId);
         $unit = $object->data->units[0];
         //echo $object->data->units[1]->unit_id;
         $routeStops = $unit->routes;
@@ -41,7 +38,7 @@ class RouteController{
 //atlasīt maršrutus?
     public function infoRouteDates(datetime $from, datetime $till): string{
         $route = new Route();
-        $object = $route->getRoutesTime($from,$till);
+        $object = $route->printRoutesTime($from,$till);
         $unit = $object->data->units[0];//Ja vajag šo funkciju, tad šeit vajadzēs nomainīt no [0] uz kaut ko citu
         //echo $object->data->units[1]->unit_id;
         $routeStops = $unit->routes;
@@ -51,7 +48,7 @@ class RouteController{
     }
     public function infoRouteCarDates($from,$till,$carId): string{
         $route = new Route();
-        $object = $route->getRoutesCarTime($from,$till,$carId);
+        $object = $route->printRoutesCarTime($from,$till,$carId);
         //$unit = $object->data->units[0];
         //echo $object->data->units[1]->unit_id;
         //$routeStops = $unit->routes;

@@ -21,9 +21,9 @@ class Router{
     public function __construct(){
             $this->dispatcher = FastRoute\simpleDispatcher(function($r) {
             $r->get($this->base_dir.'/homepage.php', 'sendHomepageToLogin');
-            $r->addRoute('GET',$this->base_dir.'/app/views/login.php','sendLogin');
+            $r->addRoute('GET',$this->base_dir.'/app/views/login.php','sendLoginToMap');
             //$r->addRoute('GET',$this->base_dir.'/app/views/mapRoutes.php','sendMap');
-            $r->addRoute('GET',$this->base_dir.'/app/controllers/LoginController.php','sendMap');
+            $r->addRoute('GET',$this->base_dir.'/app/controllers/LoginController.php','sendMapToHome');
             $r->addRoute('GET',$this->base_dir.'/route.php','sendHello');
         });
     }
@@ -70,13 +70,13 @@ function sendHello(){
     echo "Hello, world!";
 }
 //When receiving request from Login, redirects to mapRoutes
-function sendLogin(){
+function sendLoginToMap(){
     //echo "Hello, login!";
     header('Location: mapRoutes.php');
     exit();
 }
 //When receiving request from mapRoutes, redirects back to homepage
-function sendMap(){
+function sendMapToHome(){
     //echo "Hello, map!";
     header('Location: ../../homepage.php');
     exit();

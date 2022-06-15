@@ -15,7 +15,7 @@
 //Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
 //ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
 require '../controllers/LoginController.php';
-require_once "../../vendor/autoload.php";
+//require_once "../../vendor/autoload.php";
 // HTML authentication
 authHTML();
 ?>
@@ -37,8 +37,6 @@ authHTML();
 <label for="test">Test polyline</label>
 <input type="button" id="test">
 -->
-<label for="test">Test filter</label>
-<input type="button" id="test">
 <!---- šeit ir atsevišķš div, kurā glabāsies info par maršrutiem. Varbūt labāk gan tos attēlot kā info windows----->
 <div id="Route_info"></div>
 
@@ -55,8 +53,8 @@ authHTML();
     document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php.
-    document.getElementById("filter").addEventListener("click",filter,false);
-    document.getElementById("test").addEventListener("click",testFilter,false);
+    document.getElementById("filter").addEventListener("click",Filter,false);
+    //document.getElementById("test").addEventListener("click",testFilter,false);
     function sendLogOut(){
         document.getElementById("logoutForm").submit();
     }
@@ -111,6 +109,7 @@ authHTML();
         if(newDate<currentDate){
             today=returnDateString(newDate);
             document.getElementById("dateTill").max=today;
+            document.getElementById("dateTill").value=today;
         }
         else{
             today=returnDateString(currentDate);
@@ -155,23 +154,24 @@ authHTML();
     }
     //Validates user input, so a request for data can be made without error
     function validateData(){
-        let isValidated = false;
         let from, till, carId;
         if(document.getElementById('dateFrom').value == ""){
             alert("Choose a start date");
-            return isValidated;
+            return false;
         }
         else{
             from = document.getElementById('dateFrom').value;
         }
         if(document.getElementById('dateTill').value == ""){
             alert("Choose a end date");
-            return isValidated;
+            return false;
         }
         else{
             let compareDate = new Date(from);
             let newDate = new Date(compareDate.setMonth(compareDate.getMonth()+1));
             let currentDate=new Date();
+            //If its more than a month between FROM date and today, sets max value of TILL date to 1 month
+            //after chosen FROM date, to make it work with Mapon API, where max period of a request is 1 month
             if(newDate<currentDate){
                 let today = returnDateString(newDate);
                 document.getElementById("dateTill").max=today;
@@ -184,6 +184,12 @@ authHTML();
                 document.getElementById("dateTill").min=from;
             }
             till = document.getElementById('dateTill').value;
+            let compareDate2 = new Date(till);
+            compareDate.setMonth(compareDate.getMonth()-1);
+            if(compareDate2.getTime()<compareDate.getTime()){
+                alert("Till date is earlier than from date!");
+                return false;
+            }
         }
         let selectedCars = document.getElementById('cars');
         //šeit pašlaik automātiski izvēlās pirmo mašīnu sarakstā, bet gan jau jāpārveido atsevišķi, lai checo, vai
@@ -308,7 +314,7 @@ authHTML();
     }
     //Test function to see, if a different filter implementation works better
     //Update : it works better in the sense that it doesn't throw errors for unrecognized symbols in JSON response
-    function testFilter(){
+    function Filter(){
         if(!validateData()){
             alert ("Data wasn't correct");
             return;
@@ -335,7 +341,8 @@ authHTML();
         url = url+"include[]=polyline";
         return url;
     }
-    function getKeyAPI(){
+    //Function to get the key from the server, to gain access to data from Mapon API
+    /*function getKeyAPI(){
         let key;
         let xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
@@ -349,7 +356,7 @@ authHTML();
         xmlhttp.open("GET", "../controllers/mainController.php?routeAction=getKey", true);
         xmlhttp.send();
         //return key;
-    }
+    }*/
     ///Function uses given data and generates a response from Mapon API, which it then displays on a map
     async function loadJSON(from, till, carId){
        if(!validateData()){
@@ -377,7 +384,7 @@ authHTML();
     }
     //Main function, that collects user inputs from the form, and then uses them to request data from the server
     //Then processes that received data and displays it on a map
-    function filter(){
+    /*function filter(){
         if(!validateData()){
             alert ("Data wasn't correct");
             return;
@@ -387,10 +394,10 @@ authHTML();
             till = document.getElementById('dateTill').value,
             carId=getSelectValues(document.getElementById('cars').options);
             console.log(from+" "+till+" "+carId);
-            /*
+
             1)xmlhttp request, kā atbildi saņem json string
             2)Izsaukt funkciju, kura uzliek uz kartes datus
-             */
+
             ///Mēģināt šo pašu izdarīt ar fetch(), lai gan tas tāpat varētu nepalīdzēt,
             ///Jo pats fails/response, ko saņem no api, jau satur tos simbolus, vismaz rādot no
             ///Route.php un mainController.php
@@ -429,15 +436,14 @@ authHTML();
             xmlhttp.send();
         }
         //console.log(from + "," + till + "," + carId);
-    }
+    }*/
     //function initMaps(){
         function initMap(){
                 /*
-                Kad saņem kaut ko no servera-
-                Pārveido atsūtīto json objektu, lai var iet cauri,
-                Katru objekta koordināti attēlot kā pieturu google maps
+                Take info about first car's first route, to create a map, that is centered approximately
+                in the right area of the world.
                 */
-            //console.log("hello?");
+                //console.log("hello?");
                 let xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {

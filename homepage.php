@@ -13,7 +13,7 @@
 </script>
 <?php
 error_reporting(E_ALL ^ E_WARNING);
-require 'vendor/autoload.php';
+//require 'vendor/autoload.php';
 require "route.php";
 if($_GET['login']=="login"){
     $uri = $_SERVER['REQUEST_URI'];
