@@ -4,62 +4,73 @@
 //  Attēlo informāciju par konkrēto maršrutu mašīnai
 //  Papildus info automašīnai par maršrutiem
 //Switch statement, kur, atkarībā no darbības, izpilda noteiktu funkciju un aizsūta uz noteikto mājaslapu
-include "../models/Route.php";
+namespace App\controllers;
+use App\models\Route;
+//use DateTime;
+require_once "../../vendor/autoload.php";
 ///Funkcija saņem sarakstu ar maršrutiem, tad izvēlās pirmo maršrutu sarakstā, lai padotu to mājaslapai parādīt
 ///Vispirms saņem sarakstu, tad atrod, kur sākās pieturas
 /// Tad izveido asociatīvo masīvu, kur ir latitude un longitude koordinātas no API datiem
 /// Šos datus ievieto masīvā, un iziet cauri visām pieturām maršrutā
 /// Tad šo masīvu enkodē JSON un padod mapRoutes.php, lai tālāk tur apstrādātu to
 error_reporting(E_ALL ^ E_WARNING);
-function infoRoute(): void
-{
-    $route = new Route();
-    $object = $route->getRoutes();
-    $unit = $object->data->units[0];
-    //echo $object->data->units[1]->unit_id;
-    $routeStops = $unit->routes;
-    $jobject = json_encode($routeStops);
-    echo $jobject;
-}
-function infoRouteCar(int $carId): void
-{
-    $route = new Route();
-    $object = $route->getRoutesCar($carId);
-    $unit = $object->data->units[0];
-    //echo $object->data->units[1]->unit_id;
-    $routeStops = $unit->routes;
-    $jobject = json_encode($routeStops);
-    echo $jobject;
-}
+class RouteController{
+    public function _construct() : void{
+
+    }
+    public function infoRoute(): string
+    {
+        $route = new Route();
+        $object = $route->getRoutes();
+        $unit = $object->data->units[0];
+        //echo $object->data->units[1]->unit_id;
+        $routeStops = $unit->routes;
+        $jobject = json_encode($routeStops);
+        return $jobject;
+    }
+    public function infoRouteCar(int $carId): string
+    {
+        $route = new Route();
+        $object = $route->getRoutesCar($carId);
+        $unit = $object->data->units[0];
+        //echo $object->data->units[1]->unit_id;
+        $routeStops = $unit->routes;
+        $jobject = json_encode($routeStops);
+        return $jobject;
+    }
 //Vai ir jēga no šīs funkcijas? Kur tikai laiku izvēlās, un tad atlasa visus maršrutus visām mašīnām tajā laikā?
 //Vai labāk tomēr būtu šajā funkcijā arī obligāti prasīt mašīnas id, lai var tikai tai konkrētajai mašīnai/mašīnām
 //atlasīt maršrutus?
-function infoRouteDates(datetime $from, datetime $till): void
-{
-    $route = new Route();
-    $object = $route->getRoutesTime($from,$till);
-    $unit = $object->data->units[0];//Ja vajag šo funkciju, tad šeit vajadzēs nomainīt no [0] uz kaut ko citu
-    //echo $object->data->units[1]->unit_id;
-    $routeStops = $unit->routes;
-    $jobject = json_encode($routeStops);
-    echo $jobject;
+    public function infoRouteDates(datetime $from, datetime $till): string
+    {
+        $route = new Route();
+        $object = $route->getRoutesTime($from,$till);
+        $unit = $object->data->units[0];//Ja vajag šo funkciju, tad šeit vajadzēs nomainīt no [0] uz kaut ko citu
+        //echo $object->data->units[1]->unit_id;
+        $routeStops = $unit->routes;
+        //return $routeStops;
+        $jobject = json_encode($routeStops);
+        return $jobject;
+    }
+    public function infoRouteCarDates($from,$till,$carId): string
+    {
+        $route = new Route();
+        $object = $route->getRoutesCarTime($from,$till,$carId);
+        //$unit = $object->data->units[0];
+        //echo $object->data->units[1]->unit_id;
+        //$routeStops = $unit->routes;
+        //$jobject = json_encode($routeStops);
+        ///Will have to change so it basically sends the whole json file instead of just the routes part
+        /// and will have to rewrite the part of code processing that data, to accommodate to this change
+        $data=$object->data;
+        //return $object;
+        $jobject = json_encode($data);
+        //echo $routeStops[0]->route_id;
+        return $jobject;
+    }
 }
-function infoRouteCarDates($from,$till,$carId): void
-{
-    $route = new Route();
-    $object = $route->getRoutesCarTime($from,$till,$carId);
-    //$unit = $object->data->units[0];
-    //echo $object->data->units[1]->unit_id;
-    //$routeStops = $unit->routes;
-    //$jobject = json_encode($routeStops);
-    ///Will have to change so it basically sends the whole json file instead of just the routes part
-    /// and will have to rewrite the part of code processing that data, to accommodate to this change
-    $data=$object->data;
-    $jobject = json_encode($data);
-    //echo $routeStops[0]->route_id;
-    echo $jobject;
-}
-$action = $_GET["routeAction"];
+
+/*$action = $_GET["routeAction"];
 //echo $_GET["dateFrom"];
 //Nosūtīt no mapRoutes.php datus: datumu no/līdz, izvēlētās mašīnas, un tad šos datus nosūtīt uz Route.php
 //$action = "infoAllRoutes";
@@ -103,4 +114,4 @@ switch ($action) {
         //echo $carId;
         infoRouteCarDates($from,$till,$carId);
         break;
-}
+}*/
