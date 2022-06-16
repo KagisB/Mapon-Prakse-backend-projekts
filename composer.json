@@ -2,7 +2,8 @@
   "require": {
     "ext-mysqli": "*",
     "ext-curl": "*",
-    "phpauth/phpauth": "dev-master"
+    "phpauth/phpauth": "dev-master",
+    "nikic/fast-route": "^1.3"
   },
   "autoload": {
     "psr-4": {

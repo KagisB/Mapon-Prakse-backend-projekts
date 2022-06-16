@@ -7,19 +7,27 @@
     <input type="submit" name="Log in">
 </form>
 <?php
-    //echo ("Start authentication process");
-    require '../controllers/LoginController.php';
-    if(!empty($_POST['name']) && !empty($_POST['password'])){
-        //echo "Not empty";
-        if(isValidUser($_POST['name'],$_POST['password'])){
-            echo "";
-            $_SESSION['userlogin']=$_POST['name'];
-            header('Location: mapRoutes.php');
-            exit();
-        }
-        else{
-            $_SESSION['userlogin']=FALSE;
-        }
+require '../../route.php';
+//echo ("Start authentication process");
+//echo $_SERVER['REQUEST_URI'];
+require '../controllers/LoginController.php';
+if(!empty($_POST['name']) && !empty($_POST['password'])){
+    //echo "Not empty";
+    if(isValidUser($_POST['name'],$_POST['password'])){
+        //echo "";
+        $_SESSION['userlogin']=$_POST['name'];
+        /*$uri = "/map";
+        $route = new Router();
+        $route->dispatchRoute($method,$uri);*/
+        /*header('Location: mapRoutes.php');
+        exit();*/
+        $uri = $_SERVER['REQUEST_URI'];
+        $route = new Router();
+        $route->dispatchRoute($uri);
     }
+    else{
+        $_SESSION['userlogin']=FALSE;
+    }
+}
 ?>
 </html>

@@ -7,31 +7,20 @@ error_reporting(E_ALL ^ E_WARNING);
 use App\controllers\CarController;
 use App\controllers\RouteController;
 use App\models\Route;
-//use App\models\Route;
 require_once "../../vendor/autoload.php";
 $caction = $_GET["carAction"];
-//$action="infoCar";
-//$action="infoManyCars";
-//$action="carList";
 switch($caction){
     case "infoCar":
         $car = new CarController();
         $car->infoCar();
         break;
-    /*case "infoManyCars":
-        echo "lol";
-        break;*/
     case "carList":
         $car = new CarController();
         $car->allCars();
         break;
 }
 $raction = $_GET["routeAction"];
-//echo $_GET["dateFrom"];
 //Nosūtīt no mapRoutes.php datus: datumu no/līdz, izvēlētās mašīnas, un tad šos datus nosūtīt uz Route.php
-//$action = "infoAllRoutes";
-//$action="infoRoute";
-//$raction="infoRoutesCarDate";
 if($_GET["from"]!=null){
     $from = new DateTime($_GET["from"]);
 }
@@ -51,13 +40,20 @@ if($_GET["carId"]!=null){
 else{
     $carId=0;
 }
-//echo $from->format(DATE_ATOM);
-//echo $till->format(DATE_ATOM);
-//echo $carId;
+/*$raction ="infoRoutesCarDate";
+//$carId=66466;
+$from = new dateTime("2022-05-29T14:23");
+$till =new dateTime("2022-06-09T14:23");
+$carId=66466;*/
+//$from->modify("-3 days");
+//$from =;
+//$raction = "getKey";
 switch ($raction) {
     case "infoRoute":
-        $route = new Route();
-        $route->getRoutes();
+        $route = new RouteController();
+        $jsstring = $route->infoRoute();
+        //header('Content-Type: application/json; charset=utf-8');
+        echo $jsstring;
         break;
     case "infoRouteCar":
         $route = new RouteController();
@@ -68,7 +64,68 @@ switch ($raction) {
         echo $route->infoRouteDates($from,$till);
         break;
     case "infoRoutesCarDate":
+        $route = new RouteController();
+        $jsstring = $route->infoRouteCarDates($from,$till,$carId);
+        //header('Content-Type: application/json; charset=utf-8');
+        echo $jsstring;
+        break;
+    case "getKey":
         $route = new Route();
-        $route->getRoutesCarTime($from,$till,$carId);
+        echo $route->getKey();
+        //return $key;
         break;
 }
+
+/*
+ Vajadzētu routes priekš paša homepage, tad route, kas aizved uz login, un route,
+kas aizved uz mapRoutes. Potenciāli arī route, kas aizved uz homepage atpakaļ.
+Pārējiem nevajag routes, jo visas datu ieguves notiek ar request palīdzību, tādēļ
+netiek novirzīti lietotāji uz citu lapu katru reizi, kad viņi meklē kaut ko rezultātos.
+Tādēļ pietiktu tikai ar šiem 3/4 routes?
+Vēl protams jāsataisa serverim config faili, lai var palaist šo programmu uz kāda web
+servera.
+ */
+/*
+$dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
+$r->get('/', sendHomepage);
+$r->addRoute('GET','/login',sendLogin);
+$r->addRoute('GET','/map',sendMap);
+});
+
+// Fetch method and URI from somewhere
+$httpMethod = $_SERVER['REQUEST_METHOD'];
+$uri = $_SERVER['REQUEST_URI'];
+
+// Strip query string (?foo=bar) and decode URI
+if (false !== $pos = strpos($uri, '?')) {
+    $uri = substr($uri, 0, $pos);
+}
+$uri = rawurldecode($uri);
+function sendHomepage(){
+    header('Location: ../../homepage.php');
+    exit();
+}
+function sendLogin(){
+    header('Location: ../views/login.php');
+    exit();
+}
+function sendMap(){
+    header('Location: ../views/mapRoutes.php');
+    exit();
+}
+$routeInfo = $dispatcher->dispatch($httpMethod, $uri);
+switch ($routeInfo[0]) {
+    case FastRoute\Dispatcher::NOT_FOUND:
+        // ... 404 Not Found
+        break;
+    case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+        $allowedMethods = $routeInfo[1];
+        // ... 405 Method Not Allowed
+        break;
+    case FastRoute\Dispatcher::FOUND:
+        $handler = $routeInfo[1];
+        $vars = $routeInfo[2];
+        // ... call $handler with $vars
+
+        break;
+}*/
