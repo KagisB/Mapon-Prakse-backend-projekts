@@ -13,14 +13,10 @@ if($conn->connect_error){
 $users = ["johny"=>"johndoe","admin"=>"admin","normaluser"=>"passw0rd"];//piemērs 3 lietotājiem
 foreach($users as $usname => $pass){//katru lietotāju ieliek datubāzē ar hashotu paroli
     $hash=password_hash($pass,PASSWORD_BCRYPT);
-    //$sql = "INSERT INTO Users (name, password) VALUES ($usname,$hash)";
-    //echo $sql;
     $sql ="";
     $sql = $conn->prepare('INSERT INTO Users(name,password) VALUES(?,?)');//atgriezt tikai lietotāju, kur sakrīt ar username
     $sql->bind_param('ss', $usname, $hash);
     $sql->execute();
-    //$sql = "INSERT INTO Users VALUES ($usname,$hash)";
-    //$conn->query($sql);
 }
 
 mysqli_close($conn);

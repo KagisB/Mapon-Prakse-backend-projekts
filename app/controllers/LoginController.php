@@ -18,24 +18,14 @@ session_start();
 ///Example taken from and adjusted: https://github.com/ricnish/php-auth-example
 ///Function checks, if the user is authenticated, if not, reroutes to login page.
 function authHTML(){
-    //echo "authHTML activate";
     if(empty($_SESSION['userlogin'])){
-        //echo "redirects to page";
         header('Location: ../views/login.php');
         exit();
     }
-    /*elseif($_SESSION['userlogin']!=FALSE){
-        header('Location: ../views/mapRoutes.php');
-        exit();
-    }*/
 }
-//$name = "johny";
-//$pass = "johndoe";
 function isValidUser($name, $pass){
     ///Here goes username/password validation through database
     if(str_contains($name,"aaa")){///izdomāt pareizāk
-        /*//atgriež uz login lapu ar kļūdu "Nepareizi ievadīts vārds"header("Location:login.php");
-        */
         return false;
     }
     else{
@@ -58,22 +48,11 @@ function isValidUser($name, $pass){
             return false;
         }
         while($row = $result->fetch_assoc()){///Kamēr ir rezultātu rindas(vai vajag, jo vārdam tikai vienam vajadzētu būt
-            //echo "Ir izvēlēta rinda";
             if($row["name"]==$name){
-                //echo "Atrod datubāzē vārdu";
-                //Nestrādā salīdzināšana
-                //$hash=password_hash($pass,PASSWORD_BCRYPT);
-                //echo $hash;
-                //echo $row["password"];
                 if(password_verify($pass,$row["password"])){
-                    //echo "Parole atrasta/sakrīt";
                     return true;
                 }
-                else{///Te ir jāpārveido, lai turpina meklēt, ja gadījumā ir vairāki vienādi usernames
-                    //pārtrauc ciklu un atgriež uz login screen ar kļūdu "Nepareiza parole"
-                    //header("location:login.php");
-                    //exit;
-                    //echo "Parole nesakrīt";
+                else{
                     return false;
                 }
             }
@@ -82,7 +61,7 @@ function isValidUser($name, $pass){
     }
 }
 function logOut(){
-    require_once '../../route.php';
+    require_once '../../router.php';
     //session_start();
     session_destroy();
     $uri = $_SERVER["REQUEST_URI"];
@@ -95,31 +74,3 @@ error_reporting(E_ALL ^ E_WARNING);
 if($_POST['logout']=="logout"){
     logOut();
 }
-
-//echo isValidUser($name,$pass);
-
-    //PHPAuth login attempt:
-    //include("../vendor/phpauth/phpauth/Config.php");
-    //include("../vendor/phpauth/phpauth/Auth.php");
-
-/*$servername = "127.0.0.1";//??
-$username = "admin";
-$password = "password";
-$dbname = "carRoute";
-$port=3306;*/
-//$conn = new mysqli($servername,$username,$password,$dbname,$port);
-/*$conn = new PDO("mysql:host=$servername;dbname=carRoute", $username, $password);
-
-    $config = new PHPAuth\Config($conn);
-    $auth   = new PHPAuth\Auth($conn, $config);
-
-    $login = $auth->login($name,$password);
-    if(!$login['error']){
-        setcookie("authID",$login["hash"],$login["expire"],'/');
-        header ("location: ../views/mapRoutes.php");
-        exit();
-    }
-    else{
-        header ("location: ../views/login.php");
-        exit();
-    }*/

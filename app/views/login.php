@@ -7,7 +7,7 @@
     <input type="submit" name="Log in">
 </form>
 <?php
-require '../../route.php';
+require '../../router.php';
 //echo ("Start authentication process");
 //echo $_SERVER['REQUEST_URI'];
 require '../controllers/LoginController.php';

@@ -13,27 +13,13 @@
 </script>
 <?php
 error_reporting(E_ALL ^ E_WARNING);
-//require 'vendor/autoload.php';
-require "route.php";
+require 'vendor/autoload.php';
+require "router.php";
 if($_GET['login']=="login"){
     $uri = $_SERVER['REQUEST_URI'];
-//$uri = cleanURI($uri);
-//echo $uri;
     $router = new Router();
     $router->dispatchRoute($uri);
 }
 
-/*$uri = "/login";
-$router = new Router();
-$router->dispatchRoute($uri);
-
-$httpMethod = $_SERVER['REQUEST_METHOD'];
-$uri = $_SERVER['REQUEST_URI'];
-$uri = cleanURI($uri);
-echo $uri;
-echo " | ";
-echo $_SERVER['PATH_INFO'];*/
-// HTML authentication
-//authHTML();
 ?>
 </html>
