@@ -7,8 +7,6 @@
 namespace App\controllers;
 use App\models\Car;
 require_once "../../vendor/autoload.php";
-//require_once __DIR__ . '../../vendor/autoload.php';
-//include "../models/Car.php";
 class CarController{
     public function _construct(): void{
 
@@ -17,14 +15,11 @@ class CarController{
         $car = new Car();
         $object = $car->getCar();
         $cars=$object->data->units;
-        //echo $object->data->units[1]->unit_id;
         foreach($cars as $car){
             echo $car->unit_id;
         }
-        //var_dump($object);
     }
     public function allCars(): void{
-        //$car = new Car();
         $car = new Car();
         $object = $car->getCar();
         $cars=$object->data->units;
@@ -32,20 +27,3 @@ class CarController{
         echo $jcars;
     }
 }
-//$action = $_GET["carAction"];
-//$action="infoCar";
-//$action="infoManyCars";
-/*$action="carList";
-switch($action){
-    case "infoCar":
-        infoCar();
-        break;
-    case "infoManyCars":
-        echo "lol";
-        break;
-    case "carList":
-        $car = new CarInfo();
-        $car->allCars();
-        break;
-}*/
-

@@ -33,11 +33,7 @@ authHTML();
 
 <label for="filter">Filter data</label>
 <input type="button" id="filter">
-<!--
-<label for="test">Test polyline</label>
-<input type="button" id="test">
--->
-<!---- šeit ir atsevišķš div, kurā glabāsies info par maršrutiem. Varbūt labāk gan tos attēlot kā info windows----->
+
 <div id="Route_info"></div>
 
 <div id="map" style="width:100%;height:750px;"></div>
@@ -54,7 +50,6 @@ authHTML();
     //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
     // un route.php.
     document.getElementById("filter").addEventListener("click",Filter,false);
-    //document.getElementById("test").addEventListener("click",testFilter,false);
     function sendLogOut(){
         document.getElementById("logoutForm").submit();
     }
@@ -87,8 +82,6 @@ authHTML();
 
         let currentDate = new Date() ;
         let today = returnDateString(currentDate);
-        //console.log(today);
-        //document.getElementById("dateTill").setAttribute("max",today);
         document.getElementById("dateTill").max=today;
     }
     function changeMaxMinDate(){
@@ -191,9 +184,6 @@ authHTML();
                 return false;
             }
         }
-        let selectedCars = document.getElementById('cars');
-        //šeit pašlaik automātiski izvēlās pirmo mašīnu sarakstā, bet gan jau jāpārveido atsevišķi, lai checo, vai
-        carId = getSelectValues(selectedCars.options);
         return true;
     }
     //Function changes the JSON file sent from API to be able to be used by other functions to display
@@ -231,7 +221,6 @@ authHTML();
             //Puts the infoWindow on the last stop, instead of individual stops
             //Is it even possible to put it on each start marker?
             marker.addListener("click", () => {
-                //console.log(positionAdditional);
                 /*infowindow.open({
                     anchor: marker,
                     map:map,
@@ -239,7 +228,6 @@ authHTML();
                 });
                 infowindow.setPosition(positionAdditional);*/
                 document.getElementById("Route_info").innerHTML = infoContent;
-                //marker.setLabel("P");
             });
             positionAdditional = {lat: stops.end.lat, lng: stops.end.lng};
             marker = new google.maps.Marker({
@@ -251,7 +239,6 @@ authHTML();
                 content: infoContent,
             });*/
             marker.addListener("click", () => {
-                //console.log(positionAdditional);
                 /*infowindow.open({
                     anchor: marker,
                     map:map,
@@ -259,14 +246,12 @@ authHTML();
                 });
                 infowindow.setPosition(positionAdditional);*/
                 document.getElementById("Route_info").innerHTML = infoContent;
-                //marker.setLabel("P");
             });
         }
         //Today found out that routes also have a possibility to not have an end, throwing
         //an undefined value to polyline. So added another check, if the route has an end.
         if (stops.type == "route" && stops.hasOwnProperty('end')) {
             let path = google.maps.geometry.encoding.decodePath(stops.polyline);
-            //console.log(path);
             let lineSymbol = {
                 path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
             };
@@ -323,8 +308,6 @@ authHTML();
             let from = document.getElementById('dateFrom').value,
                 till = document.getElementById('dateTill').value,
                 carId=getSelectValues(document.getElementById('cars').options);
-            //console.log(from+" "+till+" "+carId);
-            //prepareURL(from,till,carId);
             loadJSON(from,till,carId);
         }
     }
@@ -332,8 +315,6 @@ authHTML();
     function prepareURL(key,from,till,carId){
         from = from+":00Z&till=";
         till = till+":00Z&";
-        /*let key = getKeyAPI();
-        console.log(key);*/
         let url = "https://mapon.com/api/v1/route/list.json?key="+key+"&from="+from+till;
         for(let i = 0;i<carId.length;i++){
             url = url+"unit_id["+i+"]="+carId[i]+"&";
@@ -341,22 +322,7 @@ authHTML();
         url = url+"include[]=polyline";
         return url;
     }
-    //Function to get the key from the server, to gain access to data from Mapon API
-    /*function getKeyAPI(){
-        let key;
-        let xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(xmlhttp.responseText);
-                key = xmlhttp.responseText;
-                console.log(key);
-                return key;
-            }
-        }
-        xmlhttp.open("GET", "../controllers/mainController.php?routeAction=getKey", true);
-        xmlhttp.send();
-        //return key;
-    }*/
+
     ///Function uses given data and generates a response from Mapon API, which it then displays on a map
     async function loadJSON(from, till, carId){
        if(!validateData()){
@@ -366,13 +332,9 @@ authHTML();
        else {
            let response = await fetch("../controllers/mainController.php?routeAction=getKey");
            let key = await response.text();
-           //console.log(key);
-           //console.log(prepareURL(key,from,till,carId));
            let response2 = await fetch(prepareURL(key,from,till,carId));
            let object = await response2.json();
-           //console.log(object);
            let data = changeJson(object);
-           //console.log(data);
            displayStartOnMap(data,carId[0]);
            for(let i =0; i<data.units.length;i++){
                let unit = data.units[i];
@@ -382,68 +344,13 @@ authHTML();
            }
        }
     }
-    //Main function, that collects user inputs from the form, and then uses them to request data from the server
-    //Then processes that received data and displays it on a map
-    /*function filter(){
-        if(!validateData()){
-            alert ("Data wasn't correct");
-            return;
-        }
-        else{
-            let from = document.getElementById('dateFrom').value,
-            till = document.getElementById('dateTill').value,
-            carId=getSelectValues(document.getElementById('cars').options);
-            console.log(from+" "+till+" "+carId);
 
-            1)xmlhttp request, kā atbildi saņem json string
-            2)Izsaukt funkciju, kura uzliek uz kartes datus
-
-            ///Mēģināt šo pašu izdarīt ar fetch(), lai gan tas tāpat varētu nepalīdzēt,
-            ///Jo pats fails/response, ko saņem no api, jau satur tos simbolus, vismaz rādot no
-            ///Route.php un mainController.php
-            let xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    try {
-                        //console.log(xmlhttp.responseText);
-                        let object = JSON.parse(xmlhttp.responseText);
-                        //let object = xmlhttp.responseText;
-                        //let object = xmlhttp.response;
-                    } catch (err) {
-                        //alert(err.message);
-                        alert("There was an error processing data. Try again or switch around filter options");
-                    } finally {
-                        let object = JSON.parse(xmlhttp.responseText);
-                        //console.log(from+" "+till+" "+carId);
-                        //console.log(xmlhttp.response);
-                        //console.log(xmlhttp.responseText);
-                        //let object = xmlhttp.response;
-                        //let object = xmlhttp.responseText;
-                        //console.log(object);
-                        //let dataObject = changeJson(object);
-                        displayStartOnMap(object,carId[0]);
-                        for(let i =0; i<object.units.length;i++){
-                            let unit = object.units[i];
-                            for(let j=0;j<unit.routes.length;j++){
-                                displayOnMap(unit,j);
-                            }
-                        }
-                    }
-                }
-            }
-            xmlhttp.open("GET", "../controllers/mainController.php?routeAction=infoRoutesCarDate&from="+from+"&till="+till+"&carId="+carId, true);
-            //xmlhttp.responseType = "json";
-            xmlhttp.send();
-        }
-        //console.log(from + "," + till + "," + carId);
-    }*/
     //function initMaps(){
         function initMap(){
                 /*
                 Take info about first car's first route, to create a map, that is centered approximately
                 in the right area of the world.
                 */
-                //console.log("hello?");
                 let xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {
@@ -467,7 +374,6 @@ authHTML();
                             //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
 
                             if(stops.hasOwnProperty('end')){
-                                //console.log("ir end");
                                 positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
                                 marker = new google.maps.Marker({
                                     position: positionAdditional,
@@ -475,16 +381,10 @@ authHTML();
                                 });
                             }
 
-                            //Nevaru pārbaudīt pašlaik, jo ir problēmas ar random encoded polyline, kura met
-                            //unrecognizable simbolus, kas parādās tikai parsējot cauri ar json.parse funkciju,
-                            //citādi nerādās šie simboli, bet tādēļ uzreiz visa funkcija nestrādā
-                            //Bet, teorētiski, ja route tips ir route, nevis stop, tad vajadzētu decodot doto polyline path
-                            // un tālāk apstrādāt to.
+                            //Ja ir route, kuram ir beigas, tad var attēlot maršrutu ar polyline
 
                             if(stops.type=="route" && stops.hasOwnProperty('end')){
-                                console.log("Ir route");
                                 let path = google.maps.geometry.encoding.decodePath(stops.polyline);
-                                //console.log(path);
                                 let drivingPath = new google.maps.Polyline({
                                     path: path,
                                     geodesic:true,
@@ -499,21 +399,8 @@ authHTML();
                 }
         xmlhttp.open("GET", "../controllers/mainController.php?routeAction=infoRoute", true);
         xmlhttp.send();
-        //alert("Tiek funkcijas beigās");
     }
 
-    //Testa funkcija, lai saprastu, kā strādā polylines, un vai problēma ir ar pašu kodu, vai ar ievaddatiem
-    /*function testpoly(){
-        let path = google.maps.geometry.encoding.decodePath(polyline);
-        let drivingPath = new google.maps.Polyline({
-            path: path,
-            geodesic:true,
-            strokeColor: "#4FDA12",
-            strokeOpacity: 1.0,
-            strokeWeight: 2,
-            map : map,
-        });
-    }*/
     window.initMap = initMap;
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w&libraries=geometry&callback=initMap"></script>
