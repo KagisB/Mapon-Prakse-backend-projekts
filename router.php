@@ -19,16 +19,18 @@ class Router{
     //private FastRoute\simpleDispatcher $dispatcher;
     public function __construct(){
             $this->dispatcher = FastRoute\simpleDispatcher(function($r) {
-            $r->get($this->base_dir.'/homepage.php', 'sendHomepageToLogin');
-            $r->addRoute('GET',$this->base_dir.'/app/views/login.php','sendLoginToMap');
-            //$r->addRoute('GET',$this->base_dir.'/app/views/mapRoutes.php','sendMap');
-            $r->addRoute('GET',$this->base_dir.'/app/controllers/LoginController.php','sendMapToHome');
-            $r->addRoute('GET',$this->base_dir.'/router.php','sendHello');
+            //$r->get('/index.php', 'sendIndexToLogin');
+            $r->get('/public/index.php', 'sendIndexToLogin');
+            $r->addRoute('GET','/app/views/login.php','sendLoginToMap');
+            $r->addRoute('GET','/app/controllers/LoginController.php','sendMapToHome');
+            //$r->addRoute('GET','/app/views/mapRoutes.php','sendMapToHome');
+            $r->addRoute('GET','/router.php','sendHello');
         });
     }
     public function dispatchRoute($uri){
         $httpMethod = 'GET';
         $uri = cleanURI($uri);
+        //echo $uri;
         $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
         switch ($routeInfo[0]) {
             case FastRoute\Dispatcher::NOT_FOUND:
@@ -56,10 +58,12 @@ function cleanURI($uri){
     return $uri;
 }
 //When receiving request from homepage, redirects to login
-function sendHomepageToLogin(){
-    //echo "Hello, homepage!";
-    header('Location: /mapon_prakse_backend_projekts/app/views/login.php');
+function sendIndexToLogin(){
+    //header('Location: ../app/views/login.php');
+    //header('Location: app/views/login.php');
+    header('Location: ../app/views/login.php');
     exit();
+    //echo "Login transfer";
 }
 function sendHello(){
     //echo $_SERVER['HTTP_HOST'];
@@ -74,6 +78,6 @@ function sendLoginToMap(){
 //When receiving request from mapRoutes, redirects back to homepage
 function sendMapToHome(){
     //echo "Hello, map!";
-    header('Location: ../../homepage.php');
+    header('Location: ../../public/index.php');
     exit();
 }

@@ -1,0 +1,26 @@
+version: "3"
+services :
+    web:
+        image: nginx:latest
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/Mapon-prakse-backend-projekts
+            - ./nginx/site.conf:/etc/nginx/conf.d/default.conf
+    php:
+        build: ./docker/phpfpm/
+        volumes:
+        - ./:/Mapon-prakse-backend-projekts
+    db:
+        build: ./docker/db/
+        ports:
+            - "3306:3306"
+        cap_add:
+            - SYS_NICE
+        environment:
+            - MYSQL_DATABASE=carRoute
+            - MYSQL_USER=admin
+            - MYSQL_PASSWORD=password
+            - MYSQL_ROOT_PASSWORD=root
+        volumes:
+            - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql

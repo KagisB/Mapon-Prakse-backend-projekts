@@ -15,8 +15,11 @@
 error_reporting(E_ALL ^ E_WARNING);
 require 'vendor/autoload.php';
 require "router.php";
+//echo $_SERVER['REQUEST_URI'];
+//echo "|";
 if($_GET['login']=="login"){
     $uri = $_SERVER['REQUEST_URI'];
+    //echo $_SERVER['REQUEST_URI'];
     $router = new Router();
     $router->dispatchRoute($uri);
 }

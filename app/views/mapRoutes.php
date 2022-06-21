@@ -1,3 +1,12 @@
+<?php
+//Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
+//ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
+require '../controllers/LoginController.php';
+//require_once "../../vendor/autoload.php";
+// HTML authentication
+session_start();
+authHTML();
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,24 +18,13 @@
     <input type="hidden" id="logout" name="logout" value="logout">
 </form>
 <h3>Map</h3>
-<script>
-<?php
-//google maps api key :AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w
-//Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
-//ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
-require '../controllers/LoginController.php';
-//require_once "../../vendor/autoload.php";
-// HTML authentication
-authHTML();
-?>
-</script>
 <form id="routeSelect" action="../controllers/RouteController.php" method="post">
     <label for="cars">Select a car</label>
     <select id="cars" name="cars" multiple><!--- Šeit tiek liktas iespējamās opcijas kā pieejamas mašīnas no api-->
 
     </select>
     <label for="dateFrom">Choose start date</label>
-    <input type="datetime-local" id="dateFrom" name="dateFrom"><!--- Te gan jau būtu labi ielikt default start un end dates?--->
+    <input type="datetime-local" id="dateFrom" name="dateFrom">
     <label for="dateTill">Choose end date</label>
     <input type="datetime-local" id="dateTill" name="dateTill" min="" max="">
 </form>
@@ -36,7 +34,7 @@ authHTML();
 
 <div id="Route_info"></div>
 
-<div id="map" style="width:100%;height:750px;"></div>
+<div id="map" style="width:100%;height:600px;"></div>
 <script>
 
     let map;
@@ -47,8 +45,7 @@ authHTML();
 
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
     document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
-    //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
-    // un route.php.
+    //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API.
     document.getElementById("filter").addEventListener("click",Filter,false);
     function sendLogOut(){
         document.getElementById("logoutForm").submit();
@@ -93,7 +90,6 @@ authHTML();
 
         let minDate = new Date(document.getElementById("dateFrom").value);
         let today = returnDateString(minDate);
-        //console.log(today);
         document.getElementById("dateTill").min=today;
         let newDate = minDate;
         newDate.setMonth(newDate.getMonth()+1);
@@ -197,7 +193,6 @@ authHTML();
     }
     //Displays markers and polylines on the map from given data object
     function displayOnMap(unit, j){
-        //console.log("Putting something on the map");
         document.getElementById("Route_info").innerHTML = "";
         let stops = unit.routes[j];
 
@@ -215,18 +210,11 @@ authHTML();
             infoContent = infoContent +
                 "<p>Stop time: " + stops.end.time + "</p>" +
                 "<p>Stop address: " + stops.end.address + "</p>";
-            /*let infowindow = new google.maps.InfoWindow({
-                content: infoContent,
-            });*/
-            //Puts the infoWindow on the last stop, instead of individual stops
-            //Is it even possible to put it on each start marker?
+            if(stops.hasOwnProperty('distance')){
+                infoContent = infoContent +
+                    "<p>Distance: " + stops.distance/1000 + " km</p>";
+            }
             marker.addListener("click", () => {
-                /*infowindow.open({
-                    anchor: marker,
-                    map:map,
-                    shouldFocus: false,
-                });
-                infowindow.setPosition(positionAdditional);*/
                 document.getElementById("Route_info").innerHTML = infoContent;
             });
             positionAdditional = {lat: stops.end.lat, lng: stops.end.lng};
@@ -235,16 +223,7 @@ authHTML();
                 map: map,
             });
         } else {
-            /*let infowindow = new google.maps.InfoWindow({
-                content: infoContent,
-            });*/
             marker.addListener("click", () => {
-                /*infowindow.open({
-                    anchor: marker,
-                    map:map,
-                    shouldFocus: false,
-                });
-                infowindow.setPosition(positionAdditional);*/
                 document.getElementById("Route_info").innerHTML = infoContent;
             });
         }
@@ -267,6 +246,7 @@ authHTML();
                 }],
                 map: map,
             });
+
         }
         //});
     }
