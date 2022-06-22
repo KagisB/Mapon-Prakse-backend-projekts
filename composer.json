@@ -3,7 +3,8 @@
     "ext-mysqli": "*",
     "ext-curl": "*",
     "phpauth/phpauth": "dev-master",
-    "nikic/fast-route": "^1.3"
+    "nikic/fast-route": "^1.3",
+    "robmorgan/phinx": "^0.12.10"
   },
   "autoload": {
     "psr-4": {

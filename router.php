@@ -21,6 +21,8 @@ class Router{
             $this->dispatcher = FastRoute\simpleDispatcher(function($r) {
             //$r->get('/index.php', 'sendIndexToLogin');
             $r->get('/public/index.php', 'sendIndexToLogin');
+            //$r->get('/', 'sendIndexToLogin2');
+            //$r->get('/index.php', 'sendIndexToLogin2');
             $r->addRoute('GET','/app/views/login.php','sendLoginToMap');
             $r->addRoute('GET','/app/controllers/LoginController.php','sendMapToHome');
             //$r->addRoute('GET','/app/views/mapRoutes.php','sendMapToHome');
@@ -59,11 +61,18 @@ function cleanURI($uri){
 }
 //When receiving request from homepage, redirects to login
 function sendIndexToLogin(){
-    //header('Location: ../app/views/login.php');
+    //echo "Login transfer";
     //header('Location: app/views/login.php');
     header('Location: ../app/views/login.php');
+    //header('Location: Http://localhost/app/views/login.php');
     exit();
-    //echo "Login transfer";
+}
+function sendIndexToLogin2(){
+    //echo "Login transfer2";
+    //header('Location: app/views/login.php');
+    header('Location: app/views/login.php');
+    //header('Location: Http://localhost/app/views/login.php');
+    exit();
 }
 function sendHello(){
     //echo $_SERVER['HTTP_HOST'];

@@ -66,6 +66,7 @@ authHTML();
 
                     let opt = document.createElement('option');
                     opt.value=car["unit_id"];//vērtību piešķir unit id, lai var vieglāk atrast īstos routes
+                    opt.id=car["number"];
                     if(select.innerHTML==""){
                         opt.selected = true;
                     }
@@ -141,6 +142,17 @@ authHTML();
         }
         return selected;
     }
+    //Function, that gets the names of the selected cars, to be able to display, which car the current info box
+    //is for
+    function getSelectId(select) {
+        let selected = [];
+        for(let option of select){
+            if(option.selected){
+                selected.push(option.id);
+            }
+        }
+        return selected;
+    }
     //Validates user input, so a request for data can be made without error
     function validateData(){
         let from, till, carId;
@@ -192,7 +204,7 @@ authHTML();
         return data;
     }
     //Displays markers and polylines on the map from given data object
-    function displayOnMap(unit, j){
+    function displayOnMap(unit, j,i){
         document.getElementById("Route_info").innerHTML = "";
         let stops = unit.routes[j];
 
@@ -202,7 +214,9 @@ authHTML();
             position: positionAdditional,
             map: map,
         });
-        let infoContent = "<p>Start time: " + stops.start.time + "</p>" +
+        let carId = getSelectId(document.getElementById('cars').options);
+        let infoContent ="<p>Car number: " + carId[i] + "</p>" +
+            "<p>Start time: " + stops.start.time + "</p>" +
             "<p>Start address: " + stops.start.address + "</p>";
         //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
         //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
@@ -253,6 +267,9 @@ authHTML();
     //Positions the map on the first position of the first unit selected, and additionally places
     // a marker there.
     function displayStartOnMap(object, carId){
+        if(!object){
+            alert("Error in the data request. Switch dates, or try again.");
+        }
         let position = {lat: object.units[0].routes[0].start.lat, lng: object.units[0].routes[0].start.lng};
         map = new google.maps.Map(document.getElementById("map"), {
             zoom: 8,
@@ -319,7 +336,7 @@ authHTML();
            for(let i =0; i<data.units.length;i++){
                let unit = data.units[i];
                for(let j=0;j<unit.routes.length;j++){
-                   displayOnMap(unit,j);
+                   displayOnMap(unit,j,i);
                }
            }
        }
