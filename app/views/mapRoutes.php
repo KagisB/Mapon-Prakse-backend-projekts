@@ -377,18 +377,35 @@ authHTML();
                                 position: positionAdditional,
                                 map: map,
                             });
-
+                            let carId = getSelectId(document.getElementById('cars').options);
+                            let infoContent ="<p>Car number: " + carId[0] + "</p>" +
+                                "<p>Start time: " + stops.start.time + "</p>" +
+                                "<p>Start address: " + stops.start.address + "</p>";
                             //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
                             //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
 
                             if(stops.hasOwnProperty('end')){
+                                infoContent = infoContent +
+                                    "<p>Stop time: " + stops.end.time + "</p>" +
+                                    "<p>Stop address: " + stops.end.address + "</p>";
+                                if(stops.hasOwnProperty('distance')){
+                                    infoContent = infoContent +
+                                        "<p>Distance: " + stops.distance/1000 + " km</p>";
+                                }
+                                marker.addListener("click", () => {
+                                    document.getElementById("Route_info").innerHTML = infoContent;
+                                });
                                 positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
                                 marker = new google.maps.Marker({
                                     position: positionAdditional,
                                     map: map,
                                 });
                             }
-
+                            else {
+                                marker.addListener("click", () => {
+                                    document.getElementById("Route_info").innerHTML = infoContent;
+                                });
+                            }
                             //Ja ir route, kuram ir beigas, tad var attēlot maršrutu ar polyline
 
                             if(stops.type=="route" && stops.hasOwnProperty('end')){
