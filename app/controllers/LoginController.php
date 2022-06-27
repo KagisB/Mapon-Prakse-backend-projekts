@@ -1,5 +1,6 @@
 <?php
-session_start();
+error_reporting(E_ALL ^ E_NOTICE);
+//session_start();
 //1)Iet cauri datubāzei/saņem sarakstu ar lietotājiem
 //2) Atrod lietotāju sarakstā/meklē ievadīto lietotāju
 //3.1)Salīdzina lietotāja paroli ar ievadīto paroli
@@ -25,14 +26,20 @@ function authHTML(){
 }
 function isValidUser($name, $pass){
     ///Here goes username/password validation through database
-    if(str_contains($name,"aaa")){///izdomāt pareizāk
-        return false;
+    //if(str_contains($name,"aaa")){///izdomāt pareizāk
+     //   return false;
+    //
+    if(1>2){
+        echo "lol";
     }
     else{
         //iegūst sarakstu ar lietotājiem no datubāzes
-        $servername = "127.0.0.1";//??
+        //$servername = "127.0.0.1";//??
+        $servername="db";
         $username = "admin";
         $password = "password";
+        //$username = "root";
+        //$password = "root";
         $dbname = "carRoute";
         $port=3306;
         $conn = new mysqli($servername,$username,$password,$dbname,$port);
@@ -40,6 +47,7 @@ function isValidUser($name, $pass){
             die("Connection failed: " . $conn->connect_error);
         }
         //Atrod no datubāzes lietotāju ar tādu pašu vārdu
+
         $sql = $conn->prepare('SELECT name,password FROM Users WHERE name = ? LIMIT 1');//atgriezt tikai lietotāju, kur sakrīt ar username
         $sql->bind_param('s', $name);
         $sql->execute();
@@ -62,7 +70,7 @@ function isValidUser($name, $pass){
 }
 function logOut(){
     require_once '../../router.php';
-    //session_start();
+    session_start();
     session_destroy();
     $uri = $_SERVER["REQUEST_URI"];
     $router = new Router();
@@ -70,7 +78,7 @@ function logOut(){
     /*header('Location: ../../public/homepage.php');
     exit();*/
 }
-error_reporting(E_ALL ^ E_WARNING);
+//error_reporting(E_ALL ^ E_WARNING);
 if($_POST['logout']=="logout"){
     logOut();
 }

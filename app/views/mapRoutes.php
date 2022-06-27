@@ -1,3 +1,12 @@
+<?php
+//Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
+//ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
+require '../controllers/LoginController.php';
+//require_once "../../vendor/autoload.php";
+// HTML authentication
+session_start();
+authHTML();
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,24 +18,13 @@
     <input type="hidden" id="logout" name="logout" value="logout">
 </form>
 <h3>Map</h3>
-<script>
-<?php
-//google maps api key :AIzaSyDoJiyrbE9CRIuyb_9KysJpcGAKPdBmo1w
-//Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
-//ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
-require '../controllers/LoginController.php';
-//require_once "../../vendor/autoload.php";
-// HTML authentication
-authHTML();
-?>
-</script>
 <form id="routeSelect" action="../controllers/RouteController.php" method="post">
     <label for="cars">Select a car</label>
     <select id="cars" name="cars" multiple><!--- Šeit tiek liktas iespējamās opcijas kā pieejamas mašīnas no api-->
 
     </select>
     <label for="dateFrom">Choose start date</label>
-    <input type="datetime-local" id="dateFrom" name="dateFrom"><!--- Te gan jau būtu labi ielikt default start un end dates?--->
+    <input type="datetime-local" id="dateFrom" name="dateFrom">
     <label for="dateTill">Choose end date</label>
     <input type="datetime-local" id="dateTill" name="dateTill" min="" max="">
 </form>
@@ -36,7 +34,7 @@ authHTML();
 
 <div id="Route_info"></div>
 
-<div id="map" style="width:100%;height:750px;"></div>
+<div id="map" style="width:100%;height:600px;"></div>
 <script>
 
     let map;
@@ -47,8 +45,7 @@ authHTML();
 
     document.getElementById("dateFrom").addEventListener("input",changeMaxMinDate,false);
     document.getElementById("logoutButton").addEventListener("click",sendLogOut,false);
-    //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API. Tam gan vajag vēl pārmainīt pašu routeController
-    // un route.php.
+    //Nākamais event listener nosūtīs datus uz routeController, lai var iegūt precīzus datus no API.
     document.getElementById("filter").addEventListener("click",Filter,false);
     function sendLogOut(){
         document.getElementById("logoutForm").submit();
@@ -69,6 +66,7 @@ authHTML();
 
                     let opt = document.createElement('option');
                     opt.value=car["unit_id"];//vērtību piešķir unit id, lai var vieglāk atrast īstos routes
+                    opt.id=car["number"];
                     if(select.innerHTML==""){
                         opt.selected = true;
                     }
@@ -93,7 +91,6 @@ authHTML();
 
         let minDate = new Date(document.getElementById("dateFrom").value);
         let today = returnDateString(minDate);
-        //console.log(today);
         document.getElementById("dateTill").min=today;
         let newDate = minDate;
         newDate.setMonth(newDate.getMonth()+1);
@@ -141,6 +138,17 @@ authHTML();
         for(let option of select){
             if(option.selected){
                 selected.push(option.value);
+            }
+        }
+        return selected;
+    }
+    //Function, that gets the names of the selected cars, to be able to display, which car the current info box
+    //is for
+    function getSelectId(select) {
+        let selected = [];
+        for(let option of select){
+            if(option.selected){
+                selected.push(option.id);
             }
         }
         return selected;
@@ -195,9 +203,16 @@ authHTML();
         let data = object.data;
         return data;
     }
+    function randomColor(){
+        //return "#"+Math.floor(Math.random()*16777215).toString(16);
+        let color = "#";
+        for (let i = 0; i < 3; i++)
+            color += ("0" + Math.floor(((1 + Math.random()) * Math.pow(16, 2)) / 2).toString(16)).slice(-2);
+        return color;
+    }
     //Displays markers and polylines on the map from given data object
-    function displayOnMap(unit, j){
-        //console.log("Putting something on the map");
+    function displayOnMap(unit, j,i, color){
+    //function displayOnMap(unit, j,i){
         document.getElementById("Route_info").innerHTML = "";
         let stops = unit.routes[j];
 
@@ -207,7 +222,9 @@ authHTML();
             position: positionAdditional,
             map: map,
         });
-        let infoContent = "<p>Start time: " + stops.start.time + "</p>" +
+        let carId = getSelectId(document.getElementById('cars').options);
+        let infoContent ="<p>Car number: " + carId[i] + "</p>" +
+            "<p>Start time: " + stops.start.time + "</p>" +
             "<p>Start address: " + stops.start.address + "</p>";
         //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
         //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
@@ -215,18 +232,11 @@ authHTML();
             infoContent = infoContent +
                 "<p>Stop time: " + stops.end.time + "</p>" +
                 "<p>Stop address: " + stops.end.address + "</p>";
-            /*let infowindow = new google.maps.InfoWindow({
-                content: infoContent,
-            });*/
-            //Puts the infoWindow on the last stop, instead of individual stops
-            //Is it even possible to put it on each start marker?
+            if(stops.hasOwnProperty('distance')){
+                infoContent = infoContent +
+                    "<p>Distance: " + stops.distance/1000 + " km</p>";
+            }
             marker.addListener("click", () => {
-                /*infowindow.open({
-                    anchor: marker,
-                    map:map,
-                    shouldFocus: false,
-                });
-                infowindow.setPosition(positionAdditional);*/
                 document.getElementById("Route_info").innerHTML = infoContent;
             });
             positionAdditional = {lat: stops.end.lat, lng: stops.end.lng};
@@ -235,16 +245,7 @@ authHTML();
                 map: map,
             });
         } else {
-            /*let infowindow = new google.maps.InfoWindow({
-                content: infoContent,
-            });*/
             marker.addListener("click", () => {
-                /*infowindow.open({
-                    anchor: marker,
-                    map:map,
-                    shouldFocus: false,
-                });
-                infowindow.setPosition(positionAdditional);*/
                 document.getElementById("Route_info").innerHTML = infoContent;
             });
         }
@@ -258,7 +259,8 @@ authHTML();
             let drivingPath = new google.maps.Polyline({
                 path: path,
                 geodesic: true,
-                strokeColor: "#4FDA12",
+                //strokeColor: "#4FDA12",
+                strokeColor: color,
                 strokeOpacity: 1.0,
                 strokeWeight: 2,
                 icons: [{
@@ -267,12 +269,16 @@ authHTML();
                 }],
                 map: map,
             });
+
         }
         //});
     }
     //Positions the map on the first position of the first unit selected, and additionally places
     // a marker there.
     function displayStartOnMap(object, carId){
+        if(!object){
+            alert("Error in the data request. Switch dates, or try again.");
+        }
         let position = {lat: object.units[0].routes[0].start.lat, lng: object.units[0].routes[0].start.lng};
         map = new google.maps.Map(document.getElementById("map"), {
             zoom: 8,
@@ -338,8 +344,10 @@ authHTML();
            displayStartOnMap(data,carId[0]);
            for(let i =0; i<data.units.length;i++){
                let unit = data.units[i];
+               let color = randomColor();
                for(let j=0;j<unit.routes.length;j++){
-                   displayOnMap(unit,j);
+                   displayOnMap(unit,j,i,color);
+                   //displayOnMap(unit,j,i);
                }
            }
        }
