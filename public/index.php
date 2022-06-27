@@ -1,7 +1,7 @@
 <?php
 //error_reporting(E_ALL ^ E_WARNING);
-include '../app/Database/databaseCreate.php';//temporary, to make sure the database is loaded, when
-include '../app/Database/databaseFill.php';//starting the program. Will be replaced later
+//include '../app/Database/databaseCreate.php';//temporary, to make sure the database is loaded, when
+//include '../app/Database/databaseFill.php';//starting the program. Will be replaced later
 require '../vendor/autoload.php';
 require "../router.php";
 //echo $_SERVER['REQUEST_URI'];
