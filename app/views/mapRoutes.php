@@ -203,8 +203,16 @@ authHTML();
         let data = object.data;
         return data;
     }
+    function randomColor(){
+        //return "#"+Math.floor(Math.random()*16777215).toString(16);
+        let color = "#";
+        for (let i = 0; i < 3; i++)
+            color += ("0" + Math.floor(((1 + Math.random()) * Math.pow(16, 2)) / 2).toString(16)).slice(-2);
+        return color;
+    }
     //Displays markers and polylines on the map from given data object
-    function displayOnMap(unit, j,i){
+    function displayOnMap(unit, j,i, color){
+    //function displayOnMap(unit, j,i){
         document.getElementById("Route_info").innerHTML = "";
         let stops = unit.routes[j];
 
@@ -251,7 +259,8 @@ authHTML();
             let drivingPath = new google.maps.Polyline({
                 path: path,
                 geodesic: true,
-                strokeColor: "#4FDA12",
+                //strokeColor: "#4FDA12",
+                strokeColor: color,
                 strokeOpacity: 1.0,
                 strokeWeight: 2,
                 icons: [{
@@ -335,8 +344,10 @@ authHTML();
            displayStartOnMap(data,carId[0]);
            for(let i =0; i<data.units.length;i++){
                let unit = data.units[i];
+               let color = randomColor();
                for(let j=0;j<unit.routes.length;j++){
-                   displayOnMap(unit,j,i);
+                   displayOnMap(unit,j,i,color);
+                   //displayOnMap(unit,j,i);
                }
            }
        }

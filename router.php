@@ -19,10 +19,10 @@ class Router{
     //private FastRoute\simpleDispatcher $dispatcher;
     public function __construct(){
             $this->dispatcher = FastRoute\simpleDispatcher(function($r) {
-            //$r->get('/index.php', 'sendIndexToLogin');
-            $r->get('/public/index.php', 'sendIndexToLogin');
-            //$r->get('/', 'sendIndexToLogin2');
             //$r->get('/index.php', 'sendIndexToLogin2');
+            $r->get('/public/index.php', 'sendIndexToLogin');
+            $r->get('/', 'sendIndexToLogin2');
+            $r->get('/index.php', 'sendIndexToLogin2');
             $r->addRoute('GET','/app/views/login.php','sendLoginToMap');
             $r->addRoute('GET','/app/controllers/LoginController.php','sendMapToHome');
             //$r->addRoute('GET','/app/views/mapRoutes.php','sendMapToHome');
@@ -67,10 +67,12 @@ function sendIndexToLogin(){
     //header('Location: Http://localhost/app/views/login.php');
     exit();
 }
-function sendIndexToLogin2(){
+function sendIndexToLogin2($uri){
     //echo "Login transfer2";
+    //echo $uri[0];
     //header('Location: app/views/login.php');
-    header('Location: app/views/login.php');
+    header('Location: ../app/views/login.php');
+    //header('Http://localhost/../app/views/login.php');
     //header('Location: Http://localhost/app/views/login.php');
     exit();
 }
@@ -87,6 +89,7 @@ function sendLoginToMap(){
 //When receiving request from mapRoutes, redirects back to homepage
 function sendMapToHome(){
     //echo "Hello, map!";
-    header('Location: ../../public/index.php');
+    //header('Location: ../../public/index.php');
+    header('Location: ../../');
     exit();
 }
