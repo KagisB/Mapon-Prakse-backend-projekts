@@ -1,4 +1,5 @@
 # Mapon-Prakse-backend-projekts
+
 Required:
 1) Docker installed
 
@@ -7,6 +8,7 @@ Then, open powershell and cd to your directory, where you just saved this repo, 
 
 Install/prepare docker:
 run docker-compose up (--build)
+
 Database preparation:
 
 1) cd to project directory
@@ -22,3 +24,4 @@ Possible fixes:
 1) If the migration doesn't properly create table, truncate the phinxlog table in the database, to clear the migration from logs, allowing it to be ran again.
 
 Use application/launch it on a server/docker hub
+
