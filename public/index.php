@@ -3,13 +3,9 @@
 require '../vendor/autoload.php';
 require "../router.php";
 //session_start();
-//echo $_SERVER['REQUEST_URI'];
-//echo "|";
-//$_GET['login']="start";
 if(isset($_GET['login'])){
     if($_GET['login']=="login"){
         $uri = $_SERVER['REQUEST_URI'];
-        //echo $_SERVER['REQUEST_URI'];
         $router = new Router();
         $router->dispatchRoute($uri);
     }
@@ -17,6 +13,9 @@ if(isset($_GET['login'])){
 ?>
 <!DOCTYPE html>
 <html lang="lv">
+<head>
+    <title>Home</title>
+</head>
 <h1>Main page without having logged in</h1>
 <button id="loginButton">Log in</button>
 <form id="loginForm" action="index.php" method="get">

@@ -2,7 +2,6 @@
 //Button, kuru nospiežot, aktivizējās funkcija, kura nosūta action=logout uz LoginController, tad, tur
 //ja action ir tukšs, seto kaut ko random, bet citādi, ja ir logout, tad log outojas.
 require '../controllers/LoginController.php';
-//require_once "../../vendor/autoload.php";
 // HTML authentication
 session_start();
 authHTML();
@@ -117,7 +116,6 @@ authHTML();
         let y=currentDate.getFullYear();
         let h=currentDate.getHours();
         let min=currentDate.getMinutes();
-        //let sec=currentDate.getSeconds();
         if(d<10){
             d= '0'+d;
         }
@@ -130,11 +128,6 @@ authHTML();
         if(h<10){
             h = '0'+h;
         }
-        /*if(sec<10){
-            sec = '0'+sec;
-        }*/
-        //let today=y+'-'+m+'-'+d+'T'+h+':'+min+':'+sec;
-        //let today=y+'-'+m+'-'+d+'T'+h+':'+min;
         return y+'-'+m+'-'+d+'T'+h+':'+min;
     }
     //Funkcija, lai atlasītu select vērtības no saraksta, ja gadījumā ir vairākas vērtības
@@ -147,8 +140,7 @@ authHTML();
         }
         return selected;
     }
-    //Function, that gets the names of the selected cars, to be able to display, which car the current info box
-    //is for
+    //Function, that gets the names of the selected cars, to be able to display, which car the current info box is for
     function getSelectId(select) {
         let selected = [];
         for(let option of select){
@@ -174,24 +166,8 @@ authHTML();
         }
         else{
             let compareDate = new Date(from);
-            let newDate = new Date(compareDate.setMonth(compareDate.getMonth()+1));
-            let currentDate=new Date();
-            //If its more than a month between FROM date and today, sets max value of TILL date to 1 month
-            //after chosen FROM date, to make it work with Mapon API, where max period of a request is 1 month
-            if(newDate<currentDate){
-                //let today = returnDateString(newDate);
-                document.getElementById("dateTill").max=returnDateString(newDate);
-                document.getElementById("dateTill").min=from;
-            }
-            else{
-                let currentDate = new Date() ;
-                //let today = returnDateString(newDate);
-                document.getElementById("dateTill").max=returnDateString(currentDate);
-                document.getElementById("dateTill").min=from;
-            }
             till = document.getElementById('dateTill').value;
             let compareDate2 = new Date(till);
-            compareDate.setMonth(compareDate.getMonth()-1);
             if(compareDate2.getTime()<compareDate.getTime()){
                 alert("Till date is earlier than from date!");
                 return false;
@@ -205,10 +181,9 @@ authHTML();
         if (object == null) {
             alert("An error was made in data choice. Make sure the start and end dates are logical!");
         }
-        //let data = object.data;
-        //return data;
         return object.data;
     }
+    //Function taken from : https://helderesteves.com/generating-random-colors-js/#Generating_random_light_colors
     function randomColor(){
         //return "#"+Math.floor(Math.random()*16777215).toString(16);
         let color = "#";
@@ -218,7 +193,6 @@ authHTML();
     }
     //Displays markers and polylines on the map from given data object
     function displayOnMap(unit, j,i, color){
-    //function displayOnMap(unit, j,i){
         document.getElementById("Route_info").innerHTML = "";
         let stops = unit.routes[j];
 
@@ -280,7 +254,6 @@ authHTML();
             });
 
         }
-        //});
     }
     //Positions the map on the first position of the first unit selected, and additionally places
     // a marker there.
@@ -317,7 +290,6 @@ authHTML();
     function Filter(){
         if(!validateData()){
             alert ("Data wasn't correct");
-            //return;
         }
         else{
             let from = document.getElementById('dateFrom').value,
@@ -342,7 +314,6 @@ authHTML();
     async function loadJSON(from, till, carId){
        if(!validateData()){
            alert ("Data wasn't correct");
-           //return;
        }
        else {
            let response = await fetch("../controllers/mainController.php?routeAction=getKey");
@@ -356,84 +327,82 @@ authHTML();
                let color = randomColor();
                for(let j=0;j<unit.routes.length;j++){
                    displayOnMap(unit,j,i,color);
-                   //displayOnMap(unit,j,i);
                }
            }
        }
     }
 
-    //function initMaps(){
-        function initMap(){
-                /*
-                Take info about first car's first route, to create a map, that is centered approximately
-                in the right area of the world.
-                */
-                let xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
+    function initMap(){
+        /*
+        Take info about first car's first route, to create a map, that is centered approximately
+        in the right area of the world.
+        */
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
 
-                        let object = JSON.parse(xmlhttp.responseText);
-                        displayInitStartOnMap(object);
+                let object = JSON.parse(xmlhttp.responseText);
+                displayInitStartOnMap(object);
 
-                        //Ir vispār vajadzība ko vairāk likt? vai sākumā varbūt arī pietiek, ja
-                        //tiek uzlikts tikai sākuma marker pirmajā position, un viss, nekādus routes
-                        //pa taisno uzreiz nerādīt?
+                //Ir vispār vajadzība ko vairāk likt? vai sākumā varbūt arī pietiek, ja
+                //tiek uzlikts tikai sākuma marker pirmajā position, un viss, nekādus routes
+                //pa taisno uzreiz nerādīt?
 
-                        object.forEach((route)=>{
-                            let stops = route;
-                            let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
-                            marker = new google.maps.Marker({
-                                position: positionAdditional,
-                                map: map,
-                            });
-                            let carId = getSelectId(document.getElementById('cars').options);
-                            let infoContent ="<p>Car number: " + carId[0] + "</p>" +
-                                "<p>Start time: " + stops.start.time + "</p>" +
-                                "<p>Start address: " + stops.start.address + "</p>";
-                            //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
-                            //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
+                object.forEach((route)=>{
+                    let stops = route;
+                    let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};
+                    marker = new google.maps.Marker({
+                        position: positionAdditional,
+                        map: map,
+                    });
+                    let carId = getSelectId(document.getElementById('cars').options);
+                    let infoContent ="<p>Car number: " + carId[0] + "</p>" +
+                        "<p>Start time: " + stops.start.time + "</p>" +
+                        "<p>Start address: " + stops.start.address + "</p>";
+                    //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
+                    //Tādēļ pagaidām ieliku pārbaudi, vai ir route end, ja nav, tad neliek end marker
 
-                            if(stops.hasOwnProperty('end')){
-                                infoContent = infoContent +
-                                    "<p>Stop time: " + stops.end.time + "</p>" +
-                                    "<p>Stop address: " + stops.end.address + "</p>";
-                                if(stops.hasOwnProperty('distance')){
-                                    infoContent = infoContent +
-                                        "<p>Distance: " + stops.distance/1000 + " km</p>";
-                                }
-                                marker.addListener("click", () => {
-                                    document.getElementById("Route_info").innerHTML = infoContent;
-                                });
-                                positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
-                                marker = new google.maps.Marker({
-                                    position: positionAdditional,
-                                    map: map,
-                                });
-                                marker.addListener("click", () => {
-                                    document.getElementById("Route_info").innerHTML = infoContent;
-                                });
-                            }
-                            else {
-                                marker.addListener("click", () => {
-                                    document.getElementById("Route_info").innerHTML = infoContent;
-                                });
-                            }
-                            //Ja ir route, kuram ir beigas, tad var attēlot maršrutu ar polyline
-
-                            if(stops.type=="route" && stops.hasOwnProperty('end')){
-                                let path = google.maps.geometry.encoding.decodePath(stops.polyline);
-                                let drivingPath = new google.maps.Polyline({
-                                    path: path,
-                                    geodesic:true,
-                                    strokeColor: "#4FDA12",
-                                    strokeOpacity: 1.0,
-                                    strokeWeight: 2,
-                                    map: map,
-                                });
-                            }
+                    if(stops.hasOwnProperty('end')){
+                        infoContent = infoContent +
+                            "<p>Stop time: " + stops.end.time + "</p>" +
+                            "<p>Stop address: " + stops.end.address + "</p>";
+                        if(stops.hasOwnProperty('distance')){
+                            infoContent = infoContent +
+                                "<p>Distance: " + stops.distance/1000 + " km</p>";
+                        }
+                        marker.addListener("click", () => {
+                            document.getElementById("Route_info").innerHTML = infoContent;
+                        });
+                        positionAdditional = { lat: stops.end.lat, lng: stops.end.lng};
+                        marker = new google.maps.Marker({
+                            position: positionAdditional,
+                            map: map,
+                        });
+                        marker.addListener("click", () => {
+                            document.getElementById("Route_info").innerHTML = infoContent;
                         });
                     }
-                }
+                    else {
+                        marker.addListener("click", () => {
+                            document.getElementById("Route_info").innerHTML = infoContent;
+                        });
+                    }
+                    //Ja ir route, kuram ir beigas, tad var attēlot maršrutu ar polyline
+
+                    if(stops.type=="route" && stops.hasOwnProperty('end')){
+                        let path = google.maps.geometry.encoding.decodePath(stops.polyline);
+                        let drivingPath = new google.maps.Polyline({
+                            path: path,
+                            geodesic:true,
+                            strokeColor: "#4FDA12",
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2,
+                            map: map,
+                        });
+                    }
+                });
+            }
+        }
         xmlhttp.open("GET", "../controllers/mainController.php?routeAction=infoRoute", true);
         xmlhttp.send();
     }

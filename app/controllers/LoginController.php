@@ -9,12 +9,6 @@ error_reporting(E_ALL ^ E_NOTICE);
 //3.2)Ja neatrod lietotāju, atmet atpakaļ
 
 //!!!Pārbaudīt, vai ievadīti ir vārdi, nevis kaut kas cits
-//$name=$_POST["name"];
-//$pass=$_POST["password"];
-//$name = "john";
-//$password = "johndoe";
-//$test="asd";
-//Kā pārbaudīt, vai name un password ir normāli/nav sql injections?
 
 ///Example taken from and adjusted: https://github.com/ricnish/php-auth-example
 ///Function checks, if the user is authenticated, if not, reroutes to login page.
@@ -25,21 +19,14 @@ function authHTML(){
     }
 }
 function isValidUser($name, $pass){
-    ///Here goes username/password validation through database
-    //if(str_contains($name,"aaa")){///izdomāt pareizāk
-     //   return false;
-    //
-    if(1>2){
+    /*if(1>2){
         echo "lol";
     }
-    else{
+    else{*/
         //iegūst sarakstu ar lietotājiem no datubāzes
-        //$servername = "127.0.0.1";//??
         $servername="db";
         $username = "admin";
         $password = "password";
-        //$username = "root";
-        //$password = "root";
         $dbname = "carRoute";
         $port=3306;
         $conn = new mysqli($servername,$username,$password,$dbname,$port);
@@ -66,7 +53,7 @@ function isValidUser($name, $pass){
             }
         }
         $conn->close();
-    }
+    //}
     return false;
 }
 function logOut(){
@@ -76,7 +63,6 @@ function logOut(){
     $uri = $_SERVER["REQUEST_URI"];
     $router = new Router();
     $router->dispatchRoute($uri);
-    //exit();
 }
 //error_reporting(E_ALL ^ E_WARNING);
 if(isset($_POST['logout'])){
