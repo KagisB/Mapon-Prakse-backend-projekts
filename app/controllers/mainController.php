@@ -31,10 +31,6 @@ if(isset($_GET["from"])){
     if($_GET["from"]!=null){
         $from = new DateTime($_GET["from"]);
     }
-    /*else{
-        $from = new DateTime("now");
-        $from->modify("-1 week");
-    }*/
 }
 else{
     $from = new DateTime("now");
@@ -44,9 +40,6 @@ if(isset($_GET["till"])){
     if($_GET["till"]!=null){
         $till = new DateTime($_GET["till"]);
     }
-    /*else{
-        $till = new DateTime("now");
-    }  */
 }
 else{
     $till = new DateTime("now");
@@ -55,9 +48,6 @@ if(isset($_GET["carId"])){
     if($_GET["carId"]!=null){
         $carId= $_GET["carId"];
     }
-    /*else{
-        $carId=0;
-    } */
 }
 else{
     $carId=0;

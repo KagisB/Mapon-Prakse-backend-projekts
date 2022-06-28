@@ -16,6 +16,9 @@ if(!empty($_POST['name']) && !empty($_POST['password'])){
 ?>
 <!DOCTYPE html>
 <html lang="lv">
+<head>
+    <title>Login</title>
+</head>
 <h1>Sign in</h1>
 <form action="login.php" method="post">
     Username:<input type="text" name="name"><br>

@@ -30,8 +30,8 @@ class Route
     }
     //Funckija, kura izmanto iedotus laikus. Varbūt vēl jāpievieno mašīnu/unit id, lai var atlasīt konkrētu mašīnu maršrutus
     //Bet to varbūt kā vēl atsevišķu funkciju
+    ////https://mapon.com/api/v1/unit/list.json
     public function printRoutesTime(dateTime $from, dateTime $till): object{
-        //https://mapon.com/api/v1/unit/list.json
         $date = $from;
         $time = $date->format(APIReady);
         $url = $this->base_url .Route::key."&from=". $time;
@@ -44,7 +44,6 @@ class Route
     }
 
     public function printRoutesCar(int $carId): object{
-        //https://mapon.com/api/v1/unit/list.json
         $date = new DateTime("now");
         $date->modify("-1 week");
         $time = $date->format(APIReady);
@@ -58,7 +57,6 @@ class Route
     }
 
     public function printRoutesCarTime($from, $till, $carId): object{
-        //https://mapon.com/api/v1/unit/list.json
         $date = $from;
         $time = $date->format(APIReady);
         $url = $this->base_url.Route::key."&from=". $time;
