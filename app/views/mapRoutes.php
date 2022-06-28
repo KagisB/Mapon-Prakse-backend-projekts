@@ -8,8 +8,8 @@ session_start();
 authHTML();
 ?>
 <!DOCTYPE html>
-<html>
-<head>
+<html lang="lv">
+<head title="Maršrutu attēlošana">
     <meta charset="UTF-8">
 </head>
 <h1>Main page having logged in</h1>
@@ -86,7 +86,6 @@ authHTML();
         /*
         Paņem min date, pieliek mēnesi klāt, ja tas ir senāk par šodienu, noliek max uz
         to datumu. Arī pie reizes uzliek min vērtību, kas ir vienāda ar from datumu.
-        Laikus saliek pareizi min/max, bet lietotājs var uzlikt citu stundu/minūti, kas salauž funkciju
          */
 
         let minDate = new Date(document.getElementById("dateFrom").value);
@@ -129,7 +128,8 @@ authHTML();
         if(sec<10){
             sec = '0'+sec;
         }
-        let today=y+'-'+m+'-'+d+'T'+h+':'+min+':'+sec;
+        //let today=y+'-'+m+'-'+d+'T'+h+':'+min+':'+sec;
+        let today=y+'-'+m+'-'+d+'T'+h+':'+min;
         return today;
     }
     //Funkcija, lai atlasītu select vērtības no saraksta, ja gadījumā ir vairākas vērtības
@@ -155,7 +155,7 @@ authHTML();
     }
     //Validates user input, so a request for data can be made without error
     function validateData(){
-        let from, till, carId;
+        let from, till;//,carId;
         if(document.getElementById('dateFrom').value == ""){
             alert("Choose a start date");
             return false;
@@ -200,8 +200,9 @@ authHTML();
         if (object == null) {
             alert("An error was made in data choice. Make sure the start and end dates are logical!");
         }
-        let data = object.data;
-        return data;
+        //let data = object.data;
+        //return data;
+        return object.data;
     }
     function randomColor(){
         //return "#"+Math.floor(Math.random()*16777215).toString(16);
@@ -243,6 +244,9 @@ authHTML();
             marker = new google.maps.Marker({
                 position: positionAdditional,
                 map: map,
+            });
+            marker.addListener("click", () => {
+                document.getElementById("Route_info").innerHTML = infoContent;
             });
         } else {
             marker.addListener("click", () => {
@@ -399,6 +403,9 @@ authHTML();
                                 marker = new google.maps.Marker({
                                     position: positionAdditional,
                                     map: map,
+                                });
+                                marker.addListener("click", () => {
+                                    document.getElementById("Route_info").innerHTML = infoContent;
                                 });
                             }
                             else {

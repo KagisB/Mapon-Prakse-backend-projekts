@@ -79,6 +79,8 @@ function logOut(){
     exit();*/
 }
 //error_reporting(E_ALL ^ E_WARNING);
-if($_POST['logout']=="logout"){
-    logOut();
+if(isset($_POST['logout'])){
+    if($_POST['logout']=="logout"){
+        logOut();
+    }
 }

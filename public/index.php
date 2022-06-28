@@ -1,20 +1,21 @@
 <?php
 //error_reporting(E_ALL ^ E_WARNING);
-//include '../app/Database/databaseCreate.php';//temporary, to make sure the database is loaded, when
-//include '../app/Database/databaseFill.php';//starting the program. Will be replaced later
 require '../vendor/autoload.php';
 require "../router.php";
 //echo $_SERVER['REQUEST_URI'];
 //echo "|";
-if($_GET['login']=="login"){
-    $uri = $_SERVER['REQUEST_URI'];
-    //echo $_SERVER['REQUEST_URI'];
-    $router = new Router();
-    $router->dispatchRoute($uri);
+//$_GET['login']="start";
+if(isset($_GET['login'])){
+    if($_GET['login']=="login"){
+        $uri = $_SERVER['REQUEST_URI'];
+        //echo $_SERVER['REQUEST_URI'];
+        $router = new Router();
+        $router->dispatchRoute($uri);
+    }
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="lv">
 <h1>Main page without having logged in</h1>
 <button id="loginButton">Log in</button>
 <form id="loginForm" action="index.php" method="get">
