@@ -9,7 +9,8 @@ authHTML();
 ?>
 <!DOCTYPE html>
 <html lang="lv">
-<head title="Maršrutu attēlošana">
+<head>
+    <title>Maršrutu attēlošana</title>
     <meta charset="UTF-8">
 </head>
 <h1>Main page having logged in</h1>
@@ -79,8 +80,8 @@ authHTML();
         xmlhttp.send();
 
         let currentDate = new Date() ;
-        let today = returnDateString(currentDate);
-        document.getElementById("dateTill").max=today;
+        //let today = returnDateString(currentDate);
+        document.getElementById("dateTill").max=returnDateString(currentDate);
     }
     function changeMaxMinDate(){
         /*
@@ -103,6 +104,10 @@ authHTML();
         else{
             today=returnDateString(currentDate);
             document.getElementById("dateTill").max=today;
+            minDate.setMonth(minDate.getMonth()-1);
+            if(minDate>new Date(document.getElementById("dateTill").value)){
+                document.getElementById("dateTill").value=returnDateString(minDate);
+            }
         }
     }
     //Funkcija atgriež string no iedotā datuma(vajadzēja priekš dažām pārbaudēm, uzrakstīju kā atseivšķu funkciju)
@@ -112,7 +117,7 @@ authHTML();
         let y=currentDate.getFullYear();
         let h=currentDate.getHours();
         let min=currentDate.getMinutes();
-        let sec=currentDate.getSeconds();
+        //let sec=currentDate.getSeconds();
         if(d<10){
             d= '0'+d;
         }
@@ -125,12 +130,12 @@ authHTML();
         if(h<10){
             h = '0'+h;
         }
-        if(sec<10){
+        /*if(sec<10){
             sec = '0'+sec;
-        }
+        }*/
         //let today=y+'-'+m+'-'+d+'T'+h+':'+min+':'+sec;
-        let today=y+'-'+m+'-'+d+'T'+h+':'+min;
-        return today;
+        //let today=y+'-'+m+'-'+d+'T'+h+':'+min;
+        return y+'-'+m+'-'+d+'T'+h+':'+min;
     }
     //Funkcija, lai atlasītu select vērtības no saraksta, ja gadījumā ir vairākas vērtības
     function getSelectValues(select) {
@@ -174,14 +179,14 @@ authHTML();
             //If its more than a month between FROM date and today, sets max value of TILL date to 1 month
             //after chosen FROM date, to make it work with Mapon API, where max period of a request is 1 month
             if(newDate<currentDate){
-                let today = returnDateString(newDate);
-                document.getElementById("dateTill").max=today;
+                //let today = returnDateString(newDate);
+                document.getElementById("dateTill").max=returnDateString(newDate);
                 document.getElementById("dateTill").min=from;
             }
             else{
                 let currentDate = new Date() ;
-                let today = returnDateString(currentDate);
-                document.getElementById("dateTill").max=today;
+                //let today = returnDateString(newDate);
+                document.getElementById("dateTill").max=returnDateString(currentDate);
                 document.getElementById("dateTill").min=from;
             }
             till = document.getElementById('dateTill').value;
@@ -312,7 +317,7 @@ authHTML();
     function Filter(){
         if(!validateData()){
             alert ("Data wasn't correct");
-            return;
+            //return;
         }
         else{
             let from = document.getElementById('dateFrom').value,
@@ -337,7 +342,7 @@ authHTML();
     async function loadJSON(from, till, carId){
        if(!validateData()){
            alert ("Data wasn't correct");
-           return;
+           //return;
        }
        else {
            let response = await fetch("../controllers/mainController.php?routeAction=getKey");
