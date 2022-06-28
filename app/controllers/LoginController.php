@@ -67,6 +67,7 @@ function isValidUser($name, $pass){
         }
         $conn->close();
     }
+    return false;
 }
 function logOut(){
     require_once '../../router.php';
@@ -75,8 +76,7 @@ function logOut(){
     $uri = $_SERVER["REQUEST_URI"];
     $router = new Router();
     $router->dispatchRoute($uri);
-    /*header('Location: ../../public/homepage.php');
-    exit();*/
+    //exit();
 }
 //error_reporting(E_ALL ^ E_WARNING);
 if(isset($_POST['logout'])){

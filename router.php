@@ -2,7 +2,6 @@
 
 //namespace Router;
 require_once 'vendor/autoload.php';
-
 /*
  Vajadzētu routes priekš paša homepage, tad route, kas aizved uz login, un route,
 kas aizved uz mapRoutes. Potenciāli arī route, kas aizved uz homepage atpakaļ.

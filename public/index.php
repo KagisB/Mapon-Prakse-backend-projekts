@@ -2,6 +2,7 @@
 //error_reporting(E_ALL ^ E_WARNING);
 require '../vendor/autoload.php';
 require "../router.php";
+//session_start();
 //echo $_SERVER['REQUEST_URI'];
 //echo "|";
 //$_GET['login']="start";
