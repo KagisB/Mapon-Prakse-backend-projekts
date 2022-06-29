@@ -20,7 +20,7 @@ return
         ],
         'development' => [
             'adapter' => 'mysql',
-            'host' => 'localhost',
+            'host' => 'db',
             'name' => 'carRoute',
             'user' => 'admin',
             'pass' => 'password',
