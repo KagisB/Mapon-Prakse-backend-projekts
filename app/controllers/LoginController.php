@@ -19,54 +19,47 @@ function authHTML(){
     }
 }
 function isValidUser($name, $pass){
-    /*if(1>2){
-        echo "lol";
-    }
-    else{*/
         //iegūst sarakstu ar lietotājiem no datubāzes
-        $servername="db";
-        $username = "admin";
-        $password = "password";
-        $dbname = "carRoute";
-        $port=3306;
-        $conn = new mysqli($servername,$username,$password,$dbname,$port);
-        if($conn->connect_error){
-            die("Connection failed: " . $conn->connect_error);
-        }
-        //Atrod no datubāzes lietotāju ar tādu pašu vārdu
+    $servername="db";
+    $username = "admin";
+    $password = "password";
+    $dbname = "carRoute";
+    $port=3306;
+    $conn = new mysqli($servername,$username,$password,$dbname,$port);
+    if($conn->connect_error){
+        die("Connection failed: " . $conn->connect_error);
+    }
+    //Atrod no datubāzes lietotāju ar tādu pašu vārdu
 
-        $sql = $conn->prepare('SELECT name,password FROM Users WHERE name = ? LIMIT 1');//atgriezt tikai lietotāju, kur sakrīt ar username
-        $sql->bind_param('s', $name);
-        $sql->execute();
-        $result = $sql->get_result();
-        if(!$result->num_rows){
-            return false;
-        }
-        while($row = $result->fetch_assoc()){///Kamēr ir rezultātu rindas(vai vajag, jo vārdam tikai vienam vajadzētu būt
-            if($row["name"]==$name){
-                if(password_verify($pass,$row["password"])){
-                    return true;
-                }
-                else{
-                    return false;
-                }
+    $sql = $conn->prepare('SELECT name,password FROM Users WHERE name = ? LIMIT 1');//atgriezt tikai lietotāju, kur sakrīt ar username
+    $sql->bind_param('s', $name);
+    $sql->execute();
+    $result = $sql->get_result();
+    if(!$result->num_rows){
+        return false;
+    }
+    while($row = $result->fetch_assoc()){///Kamēr ir rezultātu rindas(vai vajag, jo vārdam tikai vienam vajadzētu būt
+        if($row["name"]==$name){
+            if(password_verify($pass,$row["password"])){
+                return true;
+            }
+            else{
+                return false;
             }
         }
-        $conn->close();
-    //}
+    }
+    $conn->close();
     return false;
-}
-function logOut(){
-    require_once '../../router.php';
-    session_start();
-    session_destroy();
-    $uri = $_SERVER["REQUEST_URI"];
-    $router = new Router();
-    $router->dispatchRoute($uri);
 }
 //error_reporting(E_ALL ^ E_WARNING);
 if(isset($_POST['logout'])){
     if($_POST['logout']=="logout"){
-        logOut();
+        //Right now have to use this, otherwise won't work. Definitely something that needs to be improved later.
+        require_once '../../router.php';
+        session_start();
+        session_destroy();
+        $uri = $_SERVER["REQUEST_URI"];
+        $router = new Router();
+        $router->dispatchRoute($uri);
     }
 }

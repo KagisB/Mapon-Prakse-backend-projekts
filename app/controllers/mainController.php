@@ -10,7 +10,7 @@ use App\controllers\RouteController;
 use App\models\Route;
 require_once "../../vendor/autoload.php";
 if(isset($_GET["carAction"])){
-    $caction = $_GET["carAction"];
+    /*$caction = $_GET["carAction"];
     switch($caction){
         case "infoCar":
             $car = new CarController();
@@ -20,6 +20,10 @@ if(isset($_GET["carAction"])){
             $car = new CarController();
             $car->allCars();
             break;
+    }*/
+    if($_GET["carAction"]=="carList"){
+        $car = new CarController();
+        $car->allCars();
     }
 }
 

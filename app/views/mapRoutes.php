@@ -344,10 +344,6 @@ authHTML();
                 let object = JSON.parse(xmlhttp.responseText);
                 displayInitStartOnMap(object);
 
-                //Ir vispār vajadzība ko vairāk likt? vai sākumā varbūt arī pietiek, ja
-                //tiek uzlikts tikai sākuma marker pirmajā position, un viss, nekādus routes
-                //pa taisno uzreiz nerādīt?
-
                 object.forEach((route)=>{
                     let stops = route;
                     let positionAdditional = { lat: stops.start.lat, lng: stops.start.lng};

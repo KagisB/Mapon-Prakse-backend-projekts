@@ -11,14 +11,14 @@ class CarController{
     public function _construct(): void{
 
     }
-    public function infoCar(): void{
+    /*public function infoCar(): void{
         $car = new Car();
         $object = $car->getCar();
         $cars=$object->data->units;
         foreach($cars as $car){
             echo $car->unit_id;
         }
-    }
+    }*/
     public function allCars(): void{
         $car = new Car();
         $object = $car->getCar();
