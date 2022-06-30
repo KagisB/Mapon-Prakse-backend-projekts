@@ -204,6 +204,7 @@ authHTML();
         });
         let carId = getSelectId(document.getElementById('cars').options);
         let infoContent ="<p>Car number: " + carId[i] + "</p>" +
+            "<p>Route type: " + stops.type + "</p>" +
             "<p>Start time: " + stops.start.time + "</p>" +
             "<p>Start address: " + stops.start.address + "</p>";
         //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
@@ -353,6 +354,7 @@ authHTML();
                     });
                     let carId = getSelectId(document.getElementById('cars').options);
                     let infoContent ="<p>Car number: " + carId[0] + "</p>" +
+                        "<p>Route type: " + stops.type + "</p>" +
                         "<p>Start time: " + stops.start.time + "</p>" +
                         "<p>Start address: " + stops.start.address + "</p>";
                     //Ieraudzīju, ka dažiem stops nav beigu(laikam vēl ir in progress brauciens?)
